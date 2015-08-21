@@ -11,8 +11,12 @@ int Shell_exec(Shell template, ...)
     const char *arg = NULL;
     int i = 0;
     
+    printf("start\n");
+    
     rv = apr_pool_create(&p, NULL);
     check(rv == APR_SUCCESS, "Failed to create pool.");
+    
+    printf("apr pool created\n");
     
     va_start(argp, template);
     
@@ -21,7 +25,9 @@ int Shell_exec(Shell template, ...)
         key = va_arg(argp, const char *))
     {        arg = va_arg(argp, const char *);
         
-        for(i = 0; template.args[i] != NULL; i++) {            if(strcmp(template.args[i], key) == 0) {                template.args[i] = arg;
+        printf("key: %s\n", key);
+        printf("arg: %s\n", arg);
+        for(i = 0; template.args[i] != NULL; i++) {            if(strcmp(template.args[i], key) == 0) {                printf("found: %d\n", i);                template.args[i] = arg;
                 break; //found it            }        }    }
     
     rc = Shell_run(p, &template);
@@ -91,3 +97,12 @@ Shell MAKE_SH = {    .exe = "make",
 Shell INSTALL_SH = {    .exe = "sudo",
     .dir = "/tmp/pkg-build",
     .args = {"sudo", "make", "TARGET", NULL}};
+
+Shell MY_SH = {    .exe = "ls",
+    .dir = "/",
+    .args = {"ls", "OPTS", NULL}};
+
+int main(int argc, char *argv[])
+{    Shell_exec(MY_SH, "OPTS", "-l", NULL);
+    
+    return 0;}

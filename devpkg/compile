@@ -1,1 +1,3 @@
 cc -g -Wall -I/usr/local/apr/include/apr-1 -L/usr/local/apr/lib -Wl,-rpath=/usr/local/apr/lib -lapr-1 -pthread -laprutil-1 db.c bstrlib.o -o mydb
+
+cc -g -Wall -I/usr/local/apr/include/apr-1 -L/usr/local/apr/lib -Wl,-rpath=/usr/local/apr/lib -lapr-1 -pthread -laprutil-1 shell.c -o mydb
