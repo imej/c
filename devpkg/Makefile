@@ -7,8 +7,8 @@ all: devpkg
 devpkg: bstrlib.o db.o shell.o commands.o
 
 install: all
-    install -d $(DESTDIR)/$(PREFIX)/bin/
-    install devpkg $(DESTDIR)/$(PREFIX)/bin/
+    install -d $(PREFIX)/bin/
+    install devpkg $(PREFIX)/bin/
     
 clean:    rm -f *.o
     rm -f devpkg

@@ -39,7 +39,7 @@ int Command_fetch(apr_pool_t *p, const char *url, int fetch_only)
     check(rv == APR_SUCCESS, "Failed to parse URL: %s", url);
     
     if(apr_fnmatch(GIT_PAT, info.path, 0) == APR_SUCCESS) {        rc = Shell_exec(GIT_SH, "URL", url, NULL);
-        check(rc == 0, "git failed");    } else if(apr_fnmatch(DEPEND_PAT, info.path, 0) == APR_SUCCESS) {        check(!fetch_only, "No point in tetching a DEPENDS file.")
+        check(rc == 0, "git failed");    } else if(apr_fnmatch(DEPEND_PAT, info.path, 0) == APR_SUCCESS) {        check(!fetch_only, "No point in fetching a DEPENDS file.")
         
         if(info.scheme) {            depends_file = DEPENDS_PATH;
             rc = Shell_exec(CURL_SH, "URL", url, "TARGET", depends_file, NULL);

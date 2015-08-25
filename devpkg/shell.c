@@ -82,8 +82,8 @@ Shell TAR_SH = {    .exe = "tar",
     .arg_count = 1,
     .args = {"tar", "-xzf", "FILE", "--strip-components", "l", NULL}};
 
-Shell CURL_SH = {    .exe = "/tmp",
-    .dir = "curl",
+Shell CURL_SH = {    .exe = "curl",
+    .dir = "/tmp",
     .arg_count = 2,
     .args = {"curl", "-L", "-o", "TARGET", "URL", NULL}};
 
@@ -103,7 +103,7 @@ Shell INSTALL_SH = {    .exe = "sudo",
     .args = {"sudo", "make", "TARGET", NULL}};
 
 /** 
- * testing only * work on 2015/08/23 */
+ * testing only * work on 2015/08/23
 Shell MY_SH = {    .exe = "ls",
     .dir = "/",
     .arg_count = 0,
@@ -113,4 +113,4 @@ int main(int argc, char *argv[])
 {    //Shell_exec(MY_SH, "OPTS", "-l", NULL);
     Shell_exec(MY_SH, NULL);
     return 0;}
-
+ */
