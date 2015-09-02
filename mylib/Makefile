@@ -8,21 +8,16 @@ OBJECTS=$(patsubst %.c,%.o,$(SOURCES))
 TEST_SRC=$(wildcard tests/*_tests.c)
 TESTS=$(patsubst %.c,%,$(TEST_SRC))
 
-TARGET=build/libex29.a
-SO_TARGET=$(patsubst %.a,%.so,$(TARGET))
+SO_TARGET=build/libex29.so
 
 # The Target Build
-all: $(TARGET) $(SO_TARGET) tests
+all: $(SO_TARGET) tests
 
 dev: CFLAGS=-g -Wall -Isrc -Wall -Wextra $(OPTFLAGS)
 dev: all
 
-$(TARGET): CFLAGS += -fPIC
-$(TARGET): build $(OBJECTS)
-	ar rcs $@ $(OBJECTS)
-	ranlib $@
-
-$(SO_TARGET): $(TARGET) $(OBJECTS)
+$(SO_TARGET): CFLAGS += -fPIC
+$(SO_TARGET): build $(OBJECTS)
 	$(CC) -shared -o $@ $(OBJECTS)
 
 build:
@@ -31,7 +26,7 @@ build:
 
 # The Unit Tests
 .PHONY: tests
-tests: CFLAGS += $(TARGET)
+tests: CFLAGS += $(LIBS)
 tests: $(TESTS)
 	sh ./tests/runtests.sh
 

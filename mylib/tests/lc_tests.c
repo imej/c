@@ -4,14 +4,13 @@
 
 typedef int (*lib_function)(const char *data);
 
-int main(int argc, char *argv[])
+int main()
 {
     int rc = 0;
-    check(argc == 4, "USAGE: ex29 libex29.so function data");
 
-    char *lib_file = argv[1];
-    char *func_to_run = argv[2];
-    char *data = argv[3];
+    char *lib_file = "build/libex29.so";
+    char *func_to_run = "lowercase";
+    char *data = "Hello my friend";
 
     void *lib = dlopen(lib_file, RTLD_NOW);
     check(lib != NULL, "Failed to open the library %s: %s", lib_file, dlerror());
