@@ -31,8 +31,8 @@ build:
 
 # The Unit Tests
 .PHONY: tests
-tests: CFLAGS += $(TARGET)
-tests: $(TESTS)
+tests: 
+	cc -g -Wall -O2 -Wextra -Isrc -rdynamic tests/list_tests.c -o tests/list_tests build/liblcthw.a
 	sh ./tests/runtests.sh
 
 valgrind:

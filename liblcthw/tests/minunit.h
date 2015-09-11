@@ -6,7 +6,7 @@
 #include <lcthw/dbg.h>
 #include <stdlib.h>
 
-#define mu_sunit_start() char *message = NULL
+#define mu_suite_start() char *message = NULL
 
 #define mu_assert(test, message) if (!(test)) { log_err(message); return message; }
 #define mu_run_test(test) debug("\n-----%s", " " #test); \
@@ -24,7 +24,7 @@
         printf("ALL TESTS PASSED\n");\
     }\
     printf("Tests run: %d\n", tests_run);\
-    exit(results != 0);\
+    exit(result != 0);\
 }
 
 int tests_run;

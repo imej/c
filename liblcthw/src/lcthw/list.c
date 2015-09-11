@@ -1,191 +1,121 @@
-#include <stdio.h>
-#include "list.h"
-#include <stdlib.h>
-#include <assert.h>
+#include <lcthw/list.h>
+#include <lcthw/dbg.h>
 
 List *List_create()
 {
-    struct List *list = malloc(sizeof(struct List));
-    
-    assert(list != NULL);
-    list->count = 0;
-    list->first = NULL;
-    list->last = NULL;
-
-    return list;
+    return calloc(1, sizeof(List));
 }
 
-void List_push(List *list, void *value)
+void List_destroy(List *list)
 {
-    assert(list != NULL);
-    assert(value != NULL);
-
-    // create a ListNode for value
-    struct ListNode *ln = malloc(sizeof(struct ListNode));
-    assert(ln != NULL);
-
-    ln->value = value;
-    
-    // add to list
-    if (list->count > 0) {
-	ln->prev = list->last;
-	ln->next = NULL;
-	list->last->next = ln;
-	list->last = ln;
-    } else {
-        list->first = ln;
-        list->last = ln;
-	ln->prev = NULL;
-	ln->next = NULL;
+    LIST_FOREACH(list, first, next, cur) {
+        if(cur->prev) {
+	    free(cur->prev);
+	}
     }
 
-    list->count += 1;
-}
-
-void *List_pop(List *list)
-{
-    assert(list != NULL);
-
-    void *value;
-
-    if (!(list->count > 0)) {
-        // empty list, return NULL
-        return NULL;
-    }
-
-    struct ListNode *lastNode = list->last;
-    if (lastNode->prev == NULL) {
-        // only one node left
-	list->first = NULL;
-	list->last = NULL;
-    } else {
-        struct ListNode *newLast = lastNode->prev;
-        lastNode->prev = NULL;
-        newLast->next = NULL;
-        list->last = newLast;
-    }
-    list->count -= 1;
-    value = lastNode->value;
-    free(lastNode);
-
-    return value;
+    free(list->last);
+    free(list);
 }
 
 void List_clear(List *list)
 {
-    struct ListNode *tmpLN;
-
-    assert(list != NULL);
-    while (list->first != NULL) {
-        // disconnect the first element
-	tmpLN = list->first;
-	list->first = tmpLN->next;
-	tmpLN->next = NULL;
-	if (list->first != NULL) {
-	    list->first->prev = NULL;
-	}
-        
-	// distroy the old first element
-	free(tmpLN);
-	list->count -= 1;
+    LIST_FOREACH(list, first, next, cur) {
+        free(cur->value);
     }
 }
 
-void List_destroy(List *list) 
-{
-    assert(list != NULL);
-
-    if (list->count > 0) {
-        // not empty
-	printf("List_destroy: We only can destroy an empty list.");
-    } else {
-        free(list);
-    }
-}
-
-void List_clear_destroy(List *list) 
+void List_clear_destroy(List *list)
 {
     List_clear(list);
     List_destroy(list);
 }
 
-void *List_remove(List *list, ListNode *node)
+void List_push(List *list, void *value)
 {
-    assert(list != NULL);
-    assert(node != NULL);
+    ListNode *node = calloc(1, sizeof(ListNode));
+    check_mem(node);
 
-    struct ListNode *prevNode;
-    struct ListNode *nextNode;
-    void *value = NULL;
+    node->value = value;
 
-    if (node->next == NULL) {
-        // last element of the list, pop
-	value = List_pop(list);
+    if(list->last == NULL) {
+        list->first = node;
+	list->last = node;
     } else {
-        if (node->prev == NULL) {
-	    // first element
-            nextNode = node->next;
-	    
-	    list->first = nextNode;
-            nextNode->prev = NULL;
-	    node->next = NULL;
-	} else {
-	    // in the middle of the list
-            prevNode = node->prev;
-	    nextNode = node->next;
-
-	    prevNode->next = nextNode;
-	    nextNode->prev = prevNode;
-	    node->prev = NULL;
-	    node->next = NULL;
-	}
-	
-	value = node->value;
-	free(node);
+        list->last->next = node;
+	node->prev = list->last;
+	list->last = node;
     }
-    return value;
+
+    list->count++;
+
+error:
+    return;
 }
 
-int main() 
+void *List_pop(List *list)
 {
-    struct List *list = List_create();
-    struct ListNode *ln, *tmp;
+    ListNode *node = list->last;
+    return node != NULL ? List_remove(list, node) : NULL;
+}
 
-    List_push(list, "Toronto");
-    List_push(list, "Edmonton");
-    List_push(list, "Vancouver");
-    List_push(list, "Calgory");
-    List_push(list, "St. Albert");
-    List_push(list, "Ottawa");
-    List_push(list, "Montreal");
-    List_push(list, "Quebec");
-    List_push(list, "Halifax");
-    
-    printf("list->count = %d\n", List_count(list));
-    printf("first item: %s\n", (char *)List_first(list));
-    printf("last item: %s\n", (char *)List_last(list));
-    
-    printf("\nStart each: -----------------\n");
-    LIST_FOREACH(list, first, next, tmp, ln)
-    printf("++>%s\n", (char *)ln->value);
-    printf("\nEnd each: -----------------\n");
+void List_unshift(List *list, void *value)
+{
+    ListNode *node = calloc(1, sizeof(ListNode));
+    check_mem(node);
 
-    List_pop(list);
+    node->value = value;
 
-    printf("list->count = %d\n", List_count(list));
+    if(list->first == NULL) {
+        list->first = node;
+	list->last = node;
+    } else {
+        node->next = list->first;
+	list->first->prev = node;
+	list->first = node;
+    }
 
-    printf("\nStart each: -----------------\n");
-    LIST_FOREACH(list, first, next, tmp, ln)
-    printf("++>%s\n", (char *)ln->value);
-    printf("\nEnd each: -----------------\n");
+    list->count++;
 
-    printf("Clear & Destroy list.");
-    List_clear_destroy(list);
+error:
+    return;
+}
 
-    printf("\nStart each: -----------------\n");
-    LIST_FOREACH(list, first, next, tmp, ln)
-    printf("++>%s\n", (char *)ln->value);
-    printf("\nEnd each: -----------------\n");
+void *List_shift(List *list)
+{
+    ListNode *node = list->first;
+    return node != NULL ? List_remove(list, node) : NULL;
+}
 
-    return 1;
+void *List_remove(List *list, ListNode *node)
+{
+    void *result = NULL;
+
+    check(list->first && list->last, "List is empty.");
+    check(node, "node can't be NULL");
+
+    if(node == list->first && node == list->last) {
+        list->first = NULL;
+	list->last = NULL;
+    } else if(node == list->first) {
+        list->first = node->next;
+	check(list->first != NULL, "Invalid list, somehow got a first that is NULL.");
+	list->first->prev = NULL;
+    } else if(node == list->last) {
+        list->last = node->prev;
+	check(list->last != NULL, "Invalid list, somehow got a next that is NULL");
+	list->last->next = NULL;
+    }else {
+        ListNode *after = node->next;
+	ListNode *before = node->prev;
+	after->prev = before;
+	before->next = after;
+    }
+
+    list->count--;
+    result = node->value;
+    free(node);
+
+error:
+    return result;
 }
