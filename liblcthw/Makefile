@@ -1,3 +1,5 @@
+# We only use the dynamic link (.so) for the testing.
+# You need to change line 13 (target file path) and 36 (library dir and name) 
 CFLAGS=-g -O2 -Wall -Wextra -Isrc -rdynamic -DNDEBUG $(OPTFLAGS)
 LIBS=-ldl $(OPTLIBS)
 PREFIX?=/usr/local
@@ -31,8 +33,9 @@ build:
 
 # The Unit Tests
 .PHONY: tests
-tests: 
-	cc -g -Wall -O2 -Wextra -Isrc -rdynamic tests/list_tests.c -o tests/list_tests build/liblcthw.a
+tests: CFLAGS += -Lbuild -llcthw
+tests: $(TESTS) 
+	export LD_LIBRARY_PATH=./build:$(LD_LIBRARY_PATH)
 	sh ./tests/runtests.sh
 
 valgrind:
