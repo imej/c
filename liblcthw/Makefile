@@ -35,7 +35,8 @@ build:
 .PHONY: tests
 tests: CFLAGS += -Lbuild -llcthw
 tests: $(TESTS) 
-	export LD_LIBRARY_PATH=./build:$(LD_LIBRARY_PATH)
+	LD_LIBRARY_PATH=./build:$$LD_LIBRARY_PATH
+	export LD_LIBRARY_PATH=./build:$$LD_LIBRARY_PATH
 	sh ./tests/runtests.sh
 
 valgrind:
