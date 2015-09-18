@@ -1,12 +1,11 @@
-#include <lcthw/list.h>
 #include <lcthw/dbg.h>
 #include <lcthw/list_algos.h>
 #include <stdio.h>
 
-int List_bubble_sort(List *list, int (*List_compare)(void *, void *))
+int List_bubble_sort(List *list, List_compare cmp)
 {
     check(list, "List is NULL");
-    check(List_compare, "List_compare is NULL");
+    check(cmp, "List_compare is NULL");
 
     if(list->first == NULL) {
         // empty list
@@ -18,7 +17,7 @@ int List_bubble_sort(List *list, int (*List_compare)(void *, void *))
     do{
         swapped = 0;
         LIST_FOREACH(list, first, next, cur){
-	    if(cur->next != NULL && List_compare(cur->value, cur->next->value) > 0){
+	    if(cur->next != NULL && cmp(cur->value, cur->next->value) > 0){
 	        tmpNode = cur->next;
 
 	        if(cur->prev != NULL){
@@ -52,10 +51,50 @@ error:
     return 1;
 }
 
-List *List_merge_sort(List *list, int (*List_compare)(void *, void *))
+inline List *merge(List *left, List *right, List_compare cmp)
+{
+    check(left, "left is NULL");
+    check(right, "right is NULL");
+    check(cmp, "List_compare is NULL");
+
+    if(left->first == NULL || right->first == NULL) {
+        // empty list
+	return NULL;
+    }
+
+    List *rv = List_create();
+    
+    ListNode *ltmp = left->first;
+    ListNode *rtmp = right->first;
+
+    while(ltmp != NULL && rtmp != NULL) {
+        if(cmp(ltmp->value, rtmp->value) < 0){
+	    List_push(rv, ltmp->value);
+	    ltmp = ltmp->next;
+	} else {
+	    List_push(rv, rtmp->value);
+	    rtmp = rtmp->next;
+	}
+    }
+
+    while (ltmp != NULL) {
+	List_push(rv, ltmp->value);
+	ltmp = ltmp->next;
+    }
+    while (rtmp != NULL) {
+	List_push(rv, rtmp->value);
+	rtmp = rtmp->next;
+    }
+    
+    return rv;
+error:
+    return NULL;
+}
+
+List *List_merge_sort(List *list, List_compare cmp)
 {
     check(list, "List is NULL");
-    check(List_compare, "List_compare is NULL");
+    check(cmp, "List_compare is NULL");
 
     if(list->first == NULL) {
         // empty list
@@ -84,14 +123,14 @@ List *List_merge_sort(List *list, int (*List_compare)(void *, void *))
     // List_destroy(list);
 
     if (List_count(left) > 1) {
-        left = List_merge_sort(left, List_compare);
+        left = List_merge_sort(left, cmp);
     }
 
     if (List_count(right) > 1) {
-        right = List_merge_sort(right, List_compare);
+        right = List_merge_sort(right, cmp);
     }
    
-    list =  merge(left, right, List_compare);
+    list =  merge(left, right, cmp);
     
     List_destroy(left);
     List_destroy(right);
@@ -102,42 +141,3 @@ error:
     return NULL;
 }
 
-List *merge(List *left, List *right, int (*List_compare)(void *, void *))
-{
-    check(left, "left is NULL");
-    check(right, "right is NULL");
-    check(List_compare, "List_compare is NULL");
-
-    if(left->first == NULL || right->first == NULL) {
-        // empty list
-	return NULL;
-    }
-
-    List *rv = List_create();
-    
-    ListNode *ltmp = left->first;
-    ListNode *rtmp = right->first;
-
-    while(ltmp != NULL && rtmp != NULL) {
-        if(List_compare(ltmp->value, rtmp->value) < 0){
-	    List_push(rv, ltmp->value);
-	    ltmp = ltmp->next;
-	} else {
-	    List_push(rv, rtmp->value);
-	    rtmp = rtmp->next;
-	}
-    }
-
-    while (ltmp != NULL) {
-	List_push(rv, ltmp->value);
-	ltmp = ltmp->next;
-    }
-    while (rtmp != NULL) {
-	List_push(rv, rtmp->value);
-	rtmp = rtmp->next;
-    }
-    
-    return rv;
-error:
-    return NULL;
-}
