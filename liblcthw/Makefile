@@ -1,6 +1,6 @@
 # We only use the dynamic link (.so) for the testing.
 # You need to change line 13 (target file path) and 36 (library dir and name) 
-CFLAGS=-g -O2 -Wall -Wextra -Isrc -rdynamic -DNDEBUG $(OPTFLAGS)
+CFLAGS=-g -O0 -Wall -Wextra -Isrc -rdynamic -DNDEBUG $(OPTFLAGS)
 LIBS=-ldl $(OPTLIBS)
 PREFIX?=/usr/local
 

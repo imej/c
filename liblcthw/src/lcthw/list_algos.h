@@ -3,7 +3,8 @@
 
 typedef int (*List_compare)(void *, void *);
 int List_bubble_sort(List *list, List_compare);
-int List_merge_sort(List *list, List_compare);
+List *List_merge_sort(List *list, List_compare);
+List *merge(List *left, List *right, List_compare);
 
 #endif    
 
