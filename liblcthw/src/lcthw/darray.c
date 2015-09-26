@@ -72,7 +72,7 @@ int DArray_push(DArray *array, void *el)
 	check(newelm != NULL, "DArray_push: cannot allocate memery.");
 
         memcpy(newelm, el, array->element_size);
-	array->contents[array->end + 1] = newelm;
+	array->contents[array->end] = &newelm;
 	array->end += 1;
         return 0;
     }
