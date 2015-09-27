@@ -1,36 +1,133 @@
-#include <lcthw/DArray.h>
-#include <stdio.h>
+#include <lcthw/darray.h>
 
 DArray *DArray_create(size_t element_size, size_t initial_max)
 {
-    DArray *rv = calloc(1, sizeof(DArray));
-    
-    rv->end = 0;
-    rv->max = initial_max;
-    rv->element_size = element_size;
-    rv->expand_rate = DEFAULT_EXPAND_RATE;
-    
-    void *cnt[rv->max];
-    rv->contents = cnt;
+    DArray *array = malloc(sizeof(struct DArray));
+    check(array != NULL, "Cannot allocate memery for DArray.");
 
-    return rv;
+    array->end = 0;
+    array->max = initial_max;
+    array->element_size = element_size;
+    array->expand_rate = DEFAULT_EXPAND_RATE;
+    array->contents = calloc(initial_max, sizeof(void *));
+
+    return array;
+error:
+    return NULL;
 }
 
 void DArray_destroy(DArray *array)
 {
+    int i = 0;
+
     if (array != NULL) {
-        DArray_free(array);
+        for (i = 0; i < array->end + 1; i++) {
+	    check(array->contents[i] == NULL, "Can only destroy an empty DArray.");
+	}
+
+        if (array->contents != NULL) {
+	    free(array->contents);
+	}
+
+	free(array);
     }
+error:
+   i = 1; 
 }
 
 void DArray_clear(DArray *array)
 {
-    int i;
     if (array != NULL) {
-        for (i = 0; i < array->end; i++) {
-            free(DArray_remove(array, i));
-        }
+        while (array->end > -1) {
+	    if (array->contents[array->end] != NULL) {
+	        free(array->contents[array->end]);
+	        array->contents[array->end] = NULL;	
+	    }
+	    --array->end;
+	}
     }
+}
+
+int DArray_expand(DArray *array)
+{
+    void **tmp;
+    int i = 0;
+
+    if (array != NULL) {
+        tmp = calloc(array->max + array->expand_rate, sizeof(void *));
+	memcpy(tmp, array->contents, array->max * sizeof(void *));
+        array->max += array->expand_rate;
+
+	//for (i = 0; i < array->end + 1; i++) {
+	//    free(array->contents[i]);
+	//}
+
+	free(array->contents);
+
+	array->contents = tmp;
+
+	return array->max;
+    }
+
+    return 0;
+}
+
+int DArray_contract(DArray *array)
+{
+    int i = 0;
+    void **tmp;
+
+    if (array != NULL) {
+        if ((unsigned int)(array->max - array->end - 1) > array->expand_rate) {
+	    tmp = calloc(array->max - array->expand_rate, sizeof(void *));
+	    memcpy(tmp, array->contents, (array->max - array->expand_rate) * sizeof(void *));
+	    
+	    //for (i = 0; i < array->end + 1; i++) {
+            //    if (array->contents[i] != NULL) {
+	    //        free(array->contents[i]);
+            //    }
+	    //}
+
+	    free(array->contents);
+	    array->contents = tmp;
+
+            array->max -= array->expand_rate;
+	    if (array->end > array->max - 1) {
+	        array->end = array->max - 1;
+	    }
+	}
+
+	return array->max;
+    }
+
+    return 0;
+}
+
+int DArray_push(DArray *array, void *el)
+{
+    if (array != NULL && el != NULL) {
+        if (array->end + 1 == array->max) {
+	    DArray_expand(array);
+	}
+
+	array->end++;
+	DArray_set(array, array->end, el);
+    }
+}
+
+void *DArray_pop(DArray *array) 
+{
+    void * rc = NULL;
+
+    if (array != NULL && array->end > 0) {
+        rc = DArray_remove(array, array->end);
+        array->end -= 1; 
+	if ((unsigned int)(array->max - array->end) > array->expand_rate) {
+	    DArray_contract(array);
+	}
+    }
+
+    return rc;
 }
 
 void DArray_clear_destroy(DArray *array)
@@ -38,79 +135,3 @@ void DArray_clear_destroy(DArray *array)
     DArray_clear(array);
     DArray_destroy(array);
 }
-
-int DArray_expand(DArray *array)
-{
-    if (array != NULL) {
-        void *cnt[array->max + array->expand_rate];
-        memcpy(cnt, array->contents,array->end);
-	array->max += array->expand_rate;
-    }
-    return 0;
-}
-
-int DArray_contract(DArray *array)
-{
-    if (array != NULL) {
-        if (array->max > (int)array->expand_rate) {
-	    void *cnt[array->max - array->expand_rate];
-	    memcpy(cnt, array->contents, (array->max - array->expand_rate));
-	    array->max -= array->expand_rate;
-	}
-    }
-    return 0;
-}
-
-int DArray_push(DArray *array, void *el)
-{
-    if (array != NULL && el != NULL) {
-        if (array->end + 1 > array->max) {
-	    DArray_expand(array);
-	}
-
-	void *newelm = DArray_new(array);
-	check(newelm != NULL, "DArray_push: cannot allocate memery.");
-
-        memcpy(newelm, el, array->element_size);
-	array->contents[array->end] = &newelm;
-	array->end += 1;
-        return 0;
-    }
-error:
-    return 1;
-}
-
-void *DArray_pop(DArray *array)
-{
-    if (array == NULL) {
-        return NULL;
-    }
-
-    if (array->end == 0) {
-        return NULL;
-    }
-
-    array->end -= 1;
-    void *rv = DArray_remove(array, array->end);
-
-    if (array->max - array->end >= (int)array->expand_rate) {
-        DArray_contract(array);
-    }
-    return rv;
-}
-/*
-int main()
-{
-    DArray *da = DArray_create(sizeof(int), 10);
-    check(da != NULL, "cannot creat DArray.");
-    
-    //printf("max = %d\n", DArray_max(da));
-    //printf("count = %d\n", DArray_count(da));
-    //printf("size of contents: %d\n", sizeof(da->contents[100]));
-    
-    DArray_destroy(da);
-    printf("da is destroied.");
-error:
-    return 1;
-}
-*/

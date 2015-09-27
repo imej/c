@@ -7,12 +7,12 @@ static int *val2 = NULL;
 
 char *test_create()
 {
-    array = DArray_create(sizeof(int), 100);
+    array = DArray_create(sizeof(int), 2);
     mu_assert(array != NULL, "DArray_create failed.");
     mu_assert(array->contents != NULL, "contents are wrong in darray");
     mu_assert(array->end == 0, "end isn't at the right spot");
     mu_assert(array->element_size == sizeof(int), "elment size is wrong");
-    mu_assert(array->max == 100, "wrong max length on initial size");
+    mu_assert(array->max == 2, "wrong max length on initial size");
 
     return NULL;
 }
@@ -74,11 +74,21 @@ char *test_expand_contract()
     DArray_expand(array);
     mu_assert((unsigned int)array->max == old_max + array->expand_rate, "Wrong size after expand.");
     
-    Darray_contract(array);
-    mu_assert((unsigned int)array->max == array->expand_rate + 1, "Should stay at the expand_rate at least.");
+    old_max = array->max; 
+    DArray_contract(array);
+    if ((unsigned int)(old_max - array->end - 1) > array->expand_rate) {
+        mu_assert((unsigned int)array->max == old_max - array->expand_rate, "Should contract.");
+    } else {
+        mu_assert(array->max == old_max, "Should not contract.");
+    }
 
-    Darray_contract(array);
-    mu_assert((unsigned int)array->max == array->expand_rate + 1, "Should stay at the expand_rate at least.");
+    old_max = array->max;
+    DArray_contract(array);
+    if ((unsigned int)(old_max - array->end - 1) > array->expand_rate) {
+        mu_assert((unsigned int)array->max == old_max - array->expand_rate, "Should contract.");
+    } else {
+        mu_assert(array->max == old_max, "Should not contract.");
+    }
 
     return NULL;
 }
@@ -86,18 +96,19 @@ char *test_expand_contract()
 char *test_push_pop()
 {
     int i = 0;
-    for(i = 0; i < 1000; i++) {
+    for(i = 0; i < 10; i++) {
         int *val = DArray_new(array);
 	*val = i * 333;
 	DArray_push(array, val);
     }
 
-    mu_assert(array->max == 1201, "Wrong max size.");
+    mu_assert(array->max == 14, "Wrong max size.");
+    mu_assert(array->end == 11, "Wrong end size.");
 
-    for (i = 999; i >= 0; i++) {
+    for (i = 11; i >= 2; i--) {
         int *val = DArray_pop(array);
 	mu_assert(val != NULL, "Shouldn't get a NULL.");
-	mu_assert(*val == i * 333, "Wrong value.");
+	mu_assert(*val == (i-2) * 333, "Wrong value.");
 	DArray_free(val);
     }
 
