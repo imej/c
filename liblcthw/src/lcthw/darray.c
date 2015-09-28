@@ -51,16 +51,11 @@ void DArray_clear(DArray *array)
 int DArray_expand(DArray *array)
 {
     void **tmp;
-    int i = 0;
 
     if (array != NULL) {
         tmp = calloc(array->max + array->expand_rate, sizeof(void *));
 	memcpy(tmp, array->contents, array->max * sizeof(void *));
         array->max += array->expand_rate;
-
-	//for (i = 0; i < array->end + 1; i++) {
-	//    free(array->contents[i]);
-	//}
 
 	free(array->contents);
 
@@ -74,7 +69,6 @@ int DArray_expand(DArray *array)
 
 int DArray_contract(DArray *array)
 {
-    int i = 0;
     void **tmp;
 
     if (array != NULL) {
@@ -82,12 +76,6 @@ int DArray_contract(DArray *array)
 	    tmp = calloc(array->max - array->expand_rate, sizeof(void *));
 	    memcpy(tmp, array->contents, (array->max - array->expand_rate) * sizeof(void *));
 	    
-	    //for (i = 0; i < array->end + 1; i++) {
-            //    if (array->contents[i] != NULL) {
-	    //        free(array->contents[i]);
-            //    }
-	    //}
-
 	    free(array->contents);
 	    array->contents = tmp;
 
@@ -113,6 +101,8 @@ int DArray_push(DArray *array, void *el)
 	array->end++;
 	DArray_set(array, array->end, el);
     }
+
+    return 0;
 }
 
 void *DArray_pop(DArray *array) 

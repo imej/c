@@ -7,12 +7,12 @@ static int *val2 = NULL;
 
 char *test_create()
 {
-    array = DArray_create(sizeof(int), 2);
+    array = DArray_create(sizeof(int), 100);
     mu_assert(array != NULL, "DArray_create failed.");
     mu_assert(array->contents != NULL, "contents are wrong in darray");
     mu_assert(array->end == 0, "end isn't at the right spot");
     mu_assert(array->element_size == sizeof(int), "elment size is wrong");
-    mu_assert(array->max == 2, "wrong max length on initial size");
+    mu_assert(array->max == 100, "wrong max length on initial size");
 
     return NULL;
 }
@@ -96,19 +96,18 @@ char *test_expand_contract()
 char *test_push_pop()
 {
     int i = 0;
-    for(i = 0; i < 10; i++) {
+    for(i = 0; i < 1000; i++) {
         int *val = DArray_new(array);
 	*val = i * 333;
 	DArray_push(array, val);
     }
 
-    mu_assert(array->max == 14, "Wrong max size.");
-    mu_assert(array->end == 11, "Wrong end size.");
+    mu_assert(array->max == 1300, "Wrong max size.");
 
-    for (i = 11; i >= 2; i--) {
+    for (i = 999; i >= 0; i--) {
         int *val = DArray_pop(array);
 	mu_assert(val != NULL, "Shouldn't get a NULL.");
-	mu_assert(*val == (i-2) * 333, "Wrong value.");
+	mu_assert(*val == i * 333, "Wrong value.");
 	DArray_free(val);
     }
 
