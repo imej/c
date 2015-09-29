@@ -21,7 +21,7 @@ void DArray_destroy(DArray *array)
     int i = 0;
 
     if (array != NULL) {
-        for (i = 0; i < array->end + 1; i++) {
+        for (i = 0; i < array->end; i++) {
 	    check(array->contents[i] == NULL, "Can only destroy an empty DArray.");
 	}
 
@@ -37,13 +37,14 @@ error:
 
 void DArray_clear(DArray *array)
 {
+    int i = 0;
+
     if (array != NULL) {
-        while (array->end > -1) {
-	    if (array->contents[array->end] != NULL) {
-	        free(array->contents[array->end]);
-	        array->contents[array->end] = NULL;	
+        for (i = 0; i < DArray_count(array); i++) {
+	    if (array->contents[i] != NULL) {
+	        free(array->contents[i]);
+	        array->contents[i] = NULL;	
 	    }
-	    --array->end;
 	}
     }
 }
@@ -98,8 +99,8 @@ int DArray_push(DArray *array, void *el)
 	    DArray_expand(array);
 	}
 
-	array->end++;
 	DArray_set(array, array->end, el);
+	array->end++;
     }
 
     return 0;
@@ -110,8 +111,8 @@ void *DArray_pop(DArray *array)
     void * rc = NULL;
 
     if (array != NULL && array->end > 0) {
-        rc = DArray_remove(array, array->end);
         array->end -= 1; 
+        rc = DArray_remove(array, array->end);
 	if ((unsigned int)(array->max - array->end) > array->expand_rate) {
 	    DArray_contract(array);
 	}
