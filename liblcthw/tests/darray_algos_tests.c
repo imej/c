@@ -54,6 +54,7 @@ char *test_int_qsort()
     DArray *ints = create_ints();
 
     int rc = DArray_qsort(ints, (DArray_compare)cint_cmp);
+    mu_assert(rc == 0, "Quick sort of ints failed.");
     mu_assert(int_is_sorted(ints), "ints are not sorted after quick sort.");
 
     return NULL;
@@ -74,7 +75,7 @@ DArray *create_words()
 
     for(i = 0; i < NUM_VALUES; i++) {
         cp = DArray_new(words);
-	*cp = values[i];
+        strcpy(cp, (char *)values[i]);
         DArray_push(words, cp);
     }
 
