@@ -13,7 +13,7 @@ static int default_compare(void *a, void *b)
  * Simple Bob Jenkins's hash algorithm taken from the
  * wikipedia description
  */
-static unit32_t default_hash(void *a)
+static uint32_t default_hash(void *a)
 {
     size_t len = blength((bstring)a);
     char *key = bdata((bstring)a);
@@ -92,7 +92,7 @@ error:
     return NULL;
 }
 
-static inline DArray *Hashmp_find_bucket(Hashmap *map, void *key, int create, uint32_t *hash_out)
+static inline DArray *Hashmap_find_bucket(Hashmap *map, void *key, int create, uint32_t *hash_out)
 {
     uint32_t hash = map->hash(key);
     int bucket_n = hash % DEFAULT_NUMBER_OF_BUCKETS;
