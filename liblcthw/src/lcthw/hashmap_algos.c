@@ -1,4 +1,4 @@
-#include <lcthw/hashamp_algos.h>
+#include <lcthw/hashmap_algos.h>
 #include <lcthw/bstrlib.h>
 
 // setting taken from

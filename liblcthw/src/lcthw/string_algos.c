@@ -86,7 +86,7 @@ static inline void StringScanner_set_needle(StringScanner *scan, bstring tofind)
     scan->needle = (const unsigned char *)bdata(tofind);
     scan->nlen = blength(tofind);
 
-    String_setup_skip_chars(sca->skip_chars, scan->needle, scan->nlen);
+    String_setup_skip_chars(scan->skip_chars, scan->needle, scan->nlen);
 }
 
 static inline void StringScanner_reset(StringScanner *scan)
