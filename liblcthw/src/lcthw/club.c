@@ -111,11 +111,12 @@ void delete()
     temp[strlen(temp)-1] = '\0';
     Hashmap_delete(pdb, bfromcstr(temp));
 
+    printf("%s is deleted.\n", temp);
+    printf("PDB>");
+
     if (temp != NULL) {
         free(temp);
     }
-
-    printf("%s is deleted.\n", temp);
 }
 
 Person *search()
