@@ -92,6 +92,7 @@ void add()
     free(temp);
 
     Hashmap_set(pdb, bfromcstr(p->name), p);
+    
     printf("Person '%s' was added successfully.\n", p->name);
     printf("PDB>");
 }
@@ -101,6 +102,7 @@ void delete()
     flush_in();
 
     int mySize = 100;
+    Person *p;
     char *temp = calloc(100, sizeof(char));
 
     printf("Person to remove: ");
@@ -109,11 +111,18 @@ void delete()
     assert(temp != NULL);
 
     temp[strlen(temp)-1] = '\0';
-    Hashmap_delete(pdb, bfromcstr(temp));
+    bstring bs = bfromcstr(temp);
+    p = Hashmap_delete(pdb, bs);
 
     printf("%s is deleted.\n", temp);
     printf("PDB>");
 
+    if (p != NULL) {
+        free(p);
+    }
+    if (bs != NULL) {
+       bdestroy(bs); 
+    }
     if (temp != NULL) {
         free(temp);
     }
