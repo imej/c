@@ -33,13 +33,22 @@ static uint32_t default_hash(void *a)
     return hash;
 }
 
-Hashmap *Hashmap_create(Hashmap_compare compare, Hashmap_hash hash)
+static int default_free_key(void *key)
+{
+    /**
+     * by default bstring is the key.
+     */
+    return bdestroy((bstring)key);
+}
+
+Hashmap *Hashmap_create(Hashmap_compare compare, Hashmap_hash hash, Hashmap_free_key free_key)
 {
     Hashmap *map = calloc(1, sizeof(Hashmap));
     check_mem(map);
 
     map->compare = compare == NULL ? default_compare : compare;
     map->hash = hash == NULL ? default_hash : hash;
+    map->free_key = free_key == NULL ? default_free_key : free_key;
     map->buckets = DArray_create(sizeof(DArray *), DEFAULT_NUMBER_OF_BUCKETS);
     map->buckets->end = map->buckets->max; //fake out expanding it
     check_mem(map->buckets);
@@ -65,12 +74,19 @@ void Hashmap_destroy(Hashmap *map)
 	        DArray *bucket = DArray_get(map->buckets, i);
 		if (bucket) {
 		    for (j = 0; j < DArray_count(bucket); j++) {
-		        free(DArray_get(bucket, j));
+		        HashmapNode *node = DArray_get(bucket, j);
+			if (node != NULL) {
+			    free(node->data);
+			    map->free_key(node->key);
+			}
 		    }
+
 		    DArray_clear_destroy(bucket);
+
+                    DArray_remove(map->buckets, i);
 		}
 	    }
-	    DArray_destroy(map->buckets);
+	    DArray_clear_destroy(map->buckets);
 	}
 
 	free(map);
@@ -136,7 +152,7 @@ static inline int Hashmap_get_node(Hashmap *map, uint32_t hash, DArray *bucket, 
     int i = 0;
 
     for (i = 0; i < DArray_end(bucket); i++) {
-        debug("TRY: %d", i);
+        // debug("TRY: %d", i);
 	HashmapNode *node = DArray_get(bucket, i);
 	if (node->hash == hash && map->compare(node->key, key) == 0) {
 	    return i;
@@ -195,6 +211,7 @@ void *Hashmap_delete(Hashmap *map, void *key)
 
     HashmapNode *node = DArray_get(bucket, i);
     void *data = node->data;
+    map->free_key(node->key);
     free(node);
 
     HashmapNode *ending = DArray_pop(bucket);

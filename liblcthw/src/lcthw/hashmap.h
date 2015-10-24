@@ -4,15 +4,17 @@
 #include <stdint.h>
 #include <lcthw/darray.h>
 
-#define DEFAULT_NUMBER_OF_BUCKETS 100
+#define DEFAULT_NUMBER_OF_BUCKETS 3
 
 typedef int (*Hashmap_compare)(void *a, void *b);
 typedef uint32_t (*Hashmap_hash)(void *key);
+typedef int (*Hashmap_free_key)(void *key);
 
 typedef struct Hashmap {
     DArray * buckets;
     Hashmap_compare compare;
     Hashmap_hash hash;
+    Hashmap_free_key free_key;
 } Hashmap;
 
 typedef struct HashmapNode {
@@ -23,7 +25,7 @@ typedef struct HashmapNode {
 
 typedef int (*Hashmap_traverse_cb)(HashmapNode * node);
 
-Hashmap * Hashmap_create(Hashmap_compare compare, Hashmap_hash hash);
+Hashmap * Hashmap_create(Hashmap_compare compare, Hashmap_hash hash, Hashmap_free_key free_key);
 void Hashmap_destroy(Hashmap *map);
 
 int Hashmap_set(Hashmap * map, void * key, void * data);

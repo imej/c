@@ -1,6 +1,7 @@
 #include <lcthw/club.h>
 
 int readyToExit = 0;
+int Person_count = 0;
 
 void flush_in()
 {
@@ -32,11 +33,55 @@ void intro()
     printf("###################################\n");
 }
 
+void Person_print(Person *vp)
+{
+    if (vp != NULL) { 
+        printf("Name   : %s\n", vp->name);
+        printf("Age    : %d\n", vp->age);
+        printf("Address: %s\n", vp->address);
+        printf("Hobbies: %s\n", vp->hobbies);
+    }
+}
+
+int Person_travel_list(HashmapNode *node)
+{   
+    if (node != NULL) {
+        printf("--------------------\n");
+	Person_print((Person *)(node->data));
+    }
+
+    return 0;
+}
+
+int Person_travel_count(HashmapNode *node)
+{
+    if (node != NULL) {
+        Person_count += 1;
+    }
+
+    return 0;
+}
+
+int get_count()
+{
+    Person_count = 0;
+    Hashmap_traverse(pdb, Person_travel_count);
+    return Person_count;
+}
+
 void list_all()
 {
     flush_in();
-    printf("command l - list all\n");
-    // TO DO
+    printf("Command l - list all:\n");
+    Hashmap_traverse(pdb, Person_travel_list);
+    
+    printf("--------------------\n");
+    int count = get_count();
+    if (count > 1) {
+        printf("There are %d persons in the database.\n", count);
+    } else {
+        printf("There is %d person in the database.\n", count);
+    }
 }
 
 void bye()
@@ -81,6 +126,11 @@ void add()
     read_str(msg, temp);
     strcpy(p->name, temp);
     
+    msg = "Age: ";
+    read_str(msg, temp);
+    if (temp != NULL);
+    p->age = atoi(temp);
+
     msg = "Address: ";
     read_str(msg, temp);
     strcpy(p->address, temp);
@@ -132,18 +182,45 @@ Person *search()
 {
     flush_in();
 
-    char *key = NULL;
-    printf("command s - search for person: %s", key);
-    // TO DO
-    return NULL;
+    printf("command s - search for a person.\n");
+
+    int mySize = 100;
+    Person *p;
+    char *temp = calloc(100, sizeof(char));
+
+    printf("Person to search: ");
+
+    fgets(temp, mySize, stdin);
+    assert(temp != NULL);
+
+    temp[strlen(temp)-1] = '\0';
+    bstring bs = bfromcstr(temp);
+    p = Hashmap_get(pdb, bs);
+    if (p != NULL) {
+        Person_print(p);
+    } else {
+        printf("%s does not exist.\n", temp);
+    }
+
+    printf("PDB>");
+
+    if (bs != NULL) {
+       bdestroy(bs); 
+    }
+    if (temp != NULL) {
+        free(temp);
+    }
+
+    return p;
 }
 
 void init()
 {
     // Create a hashmap for the database
-    pdb = Hashmap_create(NULL, NULL);
+    pdb = Hashmap_create(NULL, NULL, NULL);
     assert(pdb != NULL);
 
+    Person *p;
     char cmd;
 
     intro();

@@ -18,5 +18,5 @@ typedef struct Person {
 Hashmap *pdb;
 
 void init();
-
+void Person_print(Person *p);
 #endif
