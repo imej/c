@@ -4,7 +4,7 @@
 
 char *test_init()
 {
-    init();
+    // init();
 
     return NULL;
 }
@@ -18,4 +18,4 @@ char *all_tests()
     return NULL;
 }
 
-// RUN_TESTS(all_tests);
+RUN_TESTS(all_tests);

@@ -22,7 +22,7 @@ BSTree *BSTree_create(BSTree_compare compare, BSTree_key_destroy key_destroy, BS
 {
     BSTree *map = calloc(1, sizeof(BSTree));
 
-    map->compare = compare;
+    map->compare = compare == NULL ? Default_compare : compare;
     map->key_destroy = key_destroy == NULL ? Default_key_destroy : key_destroy;
     map->data_destroy = data_destroy == NULL ? Default_data_destroy : data_destroy;
     map->count = 0;

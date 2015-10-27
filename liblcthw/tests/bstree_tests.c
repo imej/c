@@ -16,7 +16,7 @@ char *test_create()
 char *test_destroy()
 {
     BSTree_destroy(map);
-    mu_assert(map == NULL, "Failed to destroy BSTree.")
+
     return NULL;
 }
 
@@ -27,9 +27,9 @@ char *test_get_set()
     int rc = BSTree_set(map, &key, &data);
     mu_assert(rc == 0, "Failed to add a value to BSTree");
 
-    int *ip = BSTree_get(map, &key);
-    mu_assert(ip == NULL, "Failed to get from BSTree");
-    mu_assert(*ip == 6, "Failed to get the correct data from BSTree");
+    void *ip = BSTree_get(map, &key);
+    mu_assert(ip != NULL, "Failed to get from BSTree");
+    mu_assert(*(int *)ip == 6, "Failed to get the correct data from BSTree");
 
     return NULL;
 }
