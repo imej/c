@@ -8,14 +8,18 @@ static int Default_compare(void *a, void *b)
 
 static int Default_key_destroy(void *key)
 {
-    // Do nothing
-    return (key == NULL ? 0 : 0);
+    if (key != NULL) {
+        free(key);
+    }
+    return 0;
 }
 
 static int Default_data_destroy(void *data)
 {
-    // Do nothing
-    return (data == NULL ? 0 : 0);
+    if (data != NULL) {
+        free(data);
+    }
+    return 0;
 }
 
 BSTree *BSTree_create(BSTree_compare compare, BSTree_key_destroy key_destroy, BSTree_data_destroy data_destroy)
@@ -34,28 +38,26 @@ BSTree *BSTree_create(BSTree_compare compare, BSTree_key_destroy key_destroy, BS
 void BSTree_delete_subtree(BSTree *map, BSTreeNode *node)
 {
     if (node != NULL) {
-        if (node->left == NULL && node->right == NULL) {
-	    // Leaf node, delete
-	    if (node->parent != NULL) {
-	        if (node->parent->left == node) {
-	            node->parent->left = NULL;
-	        } else {
-		    node->parent->right = NULL;
-		}
-	    }
+	if (node->left != NULL) {
+	    BSTree_delete_subtree(map, node->left);
+	}
 
-            map->key_destroy(node->key);
-	    map->data_destroy(node->data);
-	    free(node);
-	} else {
-	    if (node->left != NULL) {
-	        BSTree_delete_subtree(map, node->left);
-	    }
+	if (node->right != NULL) {
+	    BSTree_delete_subtree(map, node->right);
+	}
 
-	    if (node->right != NULL) {
-	        BSTree_delete_subtree(map, node->right);
+	// Leaf node, delete
+	if (node->parent != NULL) {
+	    if (node->parent->left == node) {
+	        node->parent->left = NULL;
+	    } else {
+                node->parent->right = NULL;
 	    }
 	}
+
+        map->key_destroy(node->key);
+	map->data_destroy(node->data);
+	free(node);
     }
 }
 
@@ -138,4 +140,66 @@ int BSTree_set(BSTree *map, void *key, void *data)
     } else {
         return 1;
     }
+}
+
+void BSTree_delete_node(BSTree *map, BSTreeNode *node)
+{
+    assert(map != NULL && node != NULL);
+
+    if (node->left == NULL && node->right == NULL) {
+        // Leaf, delete
+        if (node->parent == NULL) {
+	    // root
+	    map->root = NULL;
+	} else {
+	    if (node->parent->left == node) {
+	        node->parent->left = NULL;
+	    } else {
+	        node->parent->right = NULL;
+	    }
+	}
+    } else if (node->left == NULL) {
+        // Only has right branch, move the right branch up
+	if (node->parent == NULL) {
+	    // Delete root
+	    map->root = node->right;
+	} else if(node->parent->left == node) {
+	    node->parent->left = node->right;
+	} else {
+	    node->parent->right = node->right;
+	}
+    } else if (node->right == NULL) {
+        // Only has left branch, move the lfet branch up
+	if (node->parent == NULL) {
+	    // Delete root
+	    map->root = node->left;
+	} else if(node->parent->left == node) {
+	    node->parent->left = node->left;
+	} else {
+	    node->parent->right = node->left;
+	}
+    } else {
+        // The node has both left and right branches
+	// Copy left branch to the current place and continue deleting left branch
+        map->key_destroy(node->key);
+        node->key = node->left->key;
+	node->data = node->left->data;
+	BSTree_delete_node(map, node->left);
+    }
+
+    map->key_destroy(node->key);
+    free(node);
+}
+
+void *BSTree_delete(BSTree *map, void *key)
+{
+    BSTreeNode *node =  BSTree_search(map, key, map->root);
+    if (node == NULL) {
+        return NULL;
+    }
+
+    void *rc = node->data;
+    BSTree_delete_node(map, node);
+    map->count -= 1;
+    return rc;
 }
