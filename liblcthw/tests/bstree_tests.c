@@ -4,6 +4,13 @@
 #include <lcthw/bstrlib.h>
 
 BSTree *map;
+static int traverse_called = 0;
+
+static int traverse(BSTreeNode *node)
+{
+    traverse_called++;
+    return 0;
+}
 
 char *test_create()
 {
@@ -123,6 +130,16 @@ char *test_delete()
     return NULL;
 }
 
+
+char *test_traverse()
+{
+    int rc = BSTree_traverse(map, traverse);
+    mu_assert(rc == 0, "Failed to traverse.");
+    mu_assert(traverse_called == 8, "Failed to travel all elements.");
+
+    return NULL;
+}
+
 char *all_tests()
 {
     mu_suite_start();
@@ -130,6 +147,7 @@ char *all_tests()
     mu_run_test(test_create);
     mu_run_test(test_get_set);
     mu_run_test(test_delete);
+    mu_run_test(test_traverse);
     mu_run_test(test_destroy);
 
     return NULL;

@@ -203,3 +203,21 @@ void *BSTree_delete(BSTree *map, void *key)
     map->count -= 1;
     return rc;
 }
+
+int BSTree_traverse_node(BSTreeNode *node, BSTree_traverse_cb traverse_cb)
+{
+    if (node == NULL) {
+        return 0;
+    }
+
+    BSTree_traverse_node(node->left, traverse_cb);
+    traverse_cb(node);
+    BSTree_traverse_node(node->right, traverse_cb);
+
+    return 0;
+}
+
+int BSTree_traverse(BSTree *map, BSTree_traverse_cb traverse_cb)
+{
+    return BSTree_traverse_node(map->root, traverse_cb);
+}
