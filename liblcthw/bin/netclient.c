@@ -99,8 +99,17 @@ int read_some(RingBuffer *buffer, int fd, int is_socket)
 
     if (is_socket) {
         rc = recv(fd, RingBuffer_starts_at(buffer), RingBuffer_available_space(buffer), 0);
+	/**
+	 * recv() is used to receive messages from a socket. 
+	 */
     } else {
         rc = read(fd, RingBuffer_starts_at(buffer), RingBuffer_available_space(buffer));
+	/**
+	 * #include <fcntl.h>
+	 * int read(int handle, void *buffer, int nbyte)
+	 * Attempts to read nbytes from the file associated with handle, and palces the 
+	 * characters read into buffer. The function returns the number of bytes read.
+	 */
     }
 
     check(rc >= 0, "Failed to read from fd: %d", fd);
