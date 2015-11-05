@@ -7,7 +7,7 @@ typedef struct {
     char *buffer;
     int length;
     int start;
-    int end
+    int end;
 } RingBuffer;
 
 RingBuffer *RingBuffer_create(int length);
@@ -38,7 +38,7 @@ bstring RingBuffer_gets(RingBuffer *buffer, int amount);
 
 #define RingBuffer_puts(B, D) RingBuffer_write((B), bdata((D)), blength((D)))
 
-#define RingBuffer_get_all(B) RingBuffer_gets((B), RingBuffer_available_data(B)))
+#define RingBuffer_get_all(B) RingBuffer_gets((B), RingBuffer_available_data(B))
 
 #define RingBuffer_starts_at(B) ((B)->buffer + (B)->start)
 
