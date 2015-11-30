@@ -9,7 +9,7 @@
 
 int main()
 {
-    char *str = "Hello, world!\n";
+    char *str = "Hello, _world!\n";
     int i = 0, j = 0;
 
     while (*(str + i) != '\0') {
