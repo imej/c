@@ -30,5 +30,11 @@ int main()
     // display printable classes
     prclass("ispunct", ispunct);
 
+    if (ispunct(2300)) {
+        fputs("work for 2300\n", stdout);
+    } else {
+        fputs("still work for 2300\n", stdout);
+    }
+
     return 0;
 }

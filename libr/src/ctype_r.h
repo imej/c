@@ -21,7 +21,7 @@ extern const short *_Ctype, *_Tolower, *_Toupper;
 /* macro overrides */
 #define isalnum(c) (_Ctype[(int)(c)] & (_DI|_LO|_UP|_XA))
 #define isalpha(c) (_Ctype[(int)(c)] & (_LO|_UP|_XA))
-#define iscntrl(c) (_Ctype[(int)(c)] & (_BB|_CN)
+#define iscntrl(c) (_Ctype[(int)(c)] & (_BB|_CN))
 #define isdigit(c) (_Ctype[(int)(c)] & _DI)
 #define isgraph(c) (_Ctype[(int)(c)] & (_DI|_LO|_PU|_UP|_XA))
 #define islower(c) (_Ctype[(int)(c)] & _LO)
