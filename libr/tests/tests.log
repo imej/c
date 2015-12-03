@@ -1,6 +1,0 @@
-DEBUG tests/assert_tests.c:65: ----- RUNNING: ./tests/assert_tests
-DEBUG tests/assert_tests.c:59: 
------ test_with_NDEBUG
-DEBUG tests/assert_tests.c:60: 
------ test_without_NDEBUG
-tests/assert_tests.c:49 i > 0 -- assertion failed
