@@ -1,5 +1,5 @@
 /* _Toupper conversion table -- ASCII versin */
-#include "ctype_r.h"
+#include "lr/ctype.h"
 #include <limits.h>  // UCHAR_MAX
 #include <stdio.h>   // EOF
 

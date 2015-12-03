@@ -1,5 +1,5 @@
 /* ispunct function */
-#include "ctype_r.h"
+#include "lr/ctype.h"
 
 int (ispunct)(int c)
 {
