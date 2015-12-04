@@ -31,7 +31,7 @@ build:
 
 # The Unit Tests
 .PHONY: tests
-tests: CFLAGS += -Lbuild -lr
+tests: CFLAGS += -Lbuild -lr -lm
 tests: $(TESTS)
 	sh ./tests/runtests.sh
 

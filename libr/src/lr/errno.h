@@ -1,7 +1,7 @@
 #ifndef _ERRNO_H
 #define _ERRNO_H
 #ifndef _YVALS_H
-    #include "yvals.h"
+    #include "lr/yvals.h"
 #endif
 
 /* error codes */
@@ -13,5 +13,5 @@
 #define _NERR _ERRMAX
 
 /* declarations */
-extern int errno;
+extern int errno_r;
 #endif
