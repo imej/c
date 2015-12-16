@@ -1,36 +1,40 @@
 #include <stdio.h>
 /*
- * Test how the floats are stored in memory 
+ * Test how a floating point number is stored in memory:
+ *
+ * SEEEEEEEEMMMMMMMMMMMMMMMMMMMMMMM
+ *
+ * S - sign: 0 positive, 1 nagitive
+ * E - Exponent = what number that is expressed by the pattern - 127
+ * M - Mantissa: 1st position means 1/2, 2nd 1/4, 1/8 ...... there is a implied 1 to be added.
+ * The value = (sign)2^exponent * mantissa
  */
 union {
     float mf;
     unsigned char mc[4];
-} myFloat;
-/*
-union {
-    unsigned int mi;
-    unsigned char mc[4];
-} myInt;
-*/
+} my[10];
+
 int main()
 {
-    // printf("sizeof(myFloat) = %d.\n", sizeof(myFloat));
+    my[0].mf = 2048;
+    my[1].mf = 2049;
+    my[2].mf = 2050;
+    my[3].mf = 2051;
+    my[4].mf = 2052;
+    my[5].mf = 2053;
+    my[6].mf = 2054;
+    my[7].mf = 2055;
+    my[8].mf = 2056;
+    my[9].mf = 2057;
 
-    myFloat.mf = 1025;
     int i = 0;
-    for (i = 3; i > -1; i--) {
-        printf("%#x|", myFloat.mc[i]);
-    }
-    printf("\t%f\n", myFloat.mf);
-/*    
-    printf("sizeof(myInt) = %d.\n", sizeof(myInt));
-
-    myInt.mi = 32770;
-    for (i = 3; i > -1; i--) {
-        printf("myInt.mi[%d] = %#x\t", i, myInt.mc[i]);
+    int j = 0;
+    for (j = 0; j < 10; j++) {
+        for (i = 3; i > -1; i--) {
+            printf("%#x|", my[j].mc[i]);
+        }
+        printf("\t%f\n", my[j].mf);
     }
 
-    printf("------------------------------------------------\n");
-*/
     return 0;
 }
