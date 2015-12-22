@@ -15,4 +15,8 @@
 #define _LBIAS  0x3ffe
 #define _LOFF   15
 
+/* for signal.h */
+#define _SIGABRT 6
+#define _SIGMAX  32
+
 #endif
