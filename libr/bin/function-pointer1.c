@@ -14,7 +14,7 @@
  * pointer.
  *
  */
-typedef float typep(float, float);
+typedef float (*typep)(float, float);  /* cannot put * in front of typep.*/
 
 float Plus     (float a, float b) {return a + b;}
 float Minus    (float a, float b) {return a - b;}
@@ -37,14 +37,18 @@ float Switch(float a, float b, char opCode)
 
 float Function_Pointer(float a, float b, float (*ptbFunc)(float, float))
 {
-    float result = ptbFunc(a, b);
+    /* Both the following work to call a function. */
+    // float result = ptbFunc(a, b);
+    float result = (*ptbFunc)(a, b);
 
     return result;
 }
 
 float Typedef_Pointer(float a, float b, typep func)
 {
-    float result = func(a, b);
+    /* Both the following work to call a function. */
+    // float result = func(a, b);
+    float result = (*func)(a, b);
 
     return result;
 }
@@ -58,14 +62,15 @@ int main()
     printf("Switch: %f - %f = %f\n", a, b, Switch(a, b, '-'));
     printf("Switch: %f * %f = %f\n", a, b, Switch(a, b, '*'));
     printf("Switch: %f / %f = %f\n", a, b, Switch(a, b, '/'));
-    printf("Function_Pointer: %f + %f = %f\n", a, b, Function_Pointer(a, b, &Plus));
+    printf("Function_Pointer: %f + %f = %f\n", a, b, Function_Pointer(a, b, Plus));
+    /* We don't have to add & before a function name for GCC. */
     printf("Function_Pointer: %f - %f = %f\n", a, b, Function_Pointer(a, b, &Minus));
     printf("Function_Pointer: %f * %f = %f\n", a, b, Function_Pointer(a, b, &Multiply));
     printf("Function_Pointer: %f / %f = %f\n", a, b, Function_Pointer(a, b, &Divide));
     printf("Typedef_Pointer: %f + %f = %f\n", a, b, Typedef_Pointer(a, b, &Plus));
     printf("Typedef_Pointer: %f - %f = %f\n", a, b, Typedef_Pointer(a, b, &Minus));
     printf("Typedef_Pointer: %f * %f = %f\n", a, b, Typedef_Pointer(a, b, &Multiply));
-    printf("Typedef_Pointer: %f / %f = %f\n", a, b, Typedef_Pointer(a, b, &Divide));
+    printf("Typedef_Pointer: %f / %f = %f\n", a, b, Typedef_Pointer(a, b, Divide));
 
     return 0;
 }
