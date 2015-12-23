@@ -1,6 +1,6 @@
 /* test signal functions */
-#include "assert.h"
-#include "signal.h"
+#include "lr/assert.h"
+#include "lr/signal.h"
 #include <stdio.h>
 #include <stdlib.h>
 
