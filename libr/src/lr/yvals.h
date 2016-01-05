@@ -19,4 +19,10 @@
 #define _SIGABRT 6
 #define _SIGMAX  32
 
+/* for limits.h */
+#define _ILONG 1  /* nonzero if an int has 4 bytes. */
+#define _CSIGN 1 /* nonzero if a char is singed */
+#define _C2 1 /* 1 if the encoding is two's complement, else 0 */
+#define _MBMAX 16 /* the worst-case length of a single multibyte charactet. */
+
 #endif

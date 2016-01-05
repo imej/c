@@ -19,7 +19,7 @@ int (raise)(int sig)    /* raise a signal */
 	_Sigtable[sig] = SIG_DFL;
 	(*s)(sig);
     } else if (s == SIG_DFL) {
-        /* dfault handling */
+        /* default handling */
 	char ac[10], *p;
 
 	switch(sig) {
