@@ -25,4 +25,6 @@
 #define _C2 1 /* 1 if the encoding is two's complement, else 0 */
 #define _MBMAX 16 /* the worst-case length of a single multibyte charactet. */
 
+/* for locale.h */
+#define _NULL (void *)0
 #endif

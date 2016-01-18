@@ -1,11 +1,10 @@
 /* test standard locale.h */
-#include <locale.h>
+#include "lr/locale.h"
 #include <stdio.h>
 #include "minunit.h"
 
 char *test_localeconv()
 {
-    //setlocale(LC_ALL, "");
     struct lconv *p = localeconv();
 
     mu_assert(p != NULL, "localeconv returns NULL.");
@@ -34,11 +33,6 @@ char *test_localeconv()
 
 char *test_setlocale()
 {
-    char *p = setlocale(LC_MONETARY, NULL);
-
-    if (p != NULL) {
-        printf("LC_MONETARY:%s\n", p);
-    }
 
     return NULL;
 }
@@ -48,7 +42,7 @@ char *all_tests()
     mu_suite_start();
 
     mu_run_test(test_localeconv);
-    mu_run_test(test_setlocale);
+    // mu_run_test(test_setlocale);
     
     return NULL;
 }

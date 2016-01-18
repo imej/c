@@ -47,7 +47,7 @@ char *_Fmtval(char *buf, double d, int fdarg)
 	cur_sym = p->currency_symbol;
 	dec_pt = p->mon_decimal_point[0];
 	if (neg) {
-	    fmt = ftab[p->n_sep_by_space == 1][p->n_cs_precedes == 1][p->n_sign_posn < 0 || r < p->p_sign_posn ? 0 : p->p_sign_posn];
+	    fmt = ftab[p->n_sep_by_space == 1][p->n_cs_precedes == 1][p->n_sign_posn < 0 || 4 < p->p_sign_posn ? 0 : p->p_sign_posn];
 	} else {
 	    fmt = ftab[p->p_sep_by_space == 1][p->p_cs_precedes == 1][p->p_sign_posn < 0 || 4 < p->p_sign_posn ? 0 : p->p_sign_posn];
 	}
@@ -96,7 +96,7 @@ char *_Fmtval(char *buf, double d, int fdarg)
 		}
 
                 memmove(end + ns, end, strlen(end) + 1);
-		i = end -s, end += ns;
+		i = end - s, end += ns;
 		*end = 0 <= fd && fd != CHAR_MAX ? dec_pt : '\0';
 		for (g = grps; 0 < i; --ns) {
 		    /* copy up and insert separators */
