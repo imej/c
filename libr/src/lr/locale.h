@@ -15,8 +15,8 @@
 #define LC_MONETARY    3
 #define LC_NUMERIC     4
 #define LC_TIME        5
-
 /* ADD YOURS HERE */
+
 #define _NCAT          6
 
 /* type definitions */

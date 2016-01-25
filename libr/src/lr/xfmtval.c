@@ -1,6 +1,6 @@
 /* _Fmtval function */
 #include <limits.h>
-#include <locale.h>
+#include "lr/locale.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -70,7 +70,7 @@ char *_Fmtval(char *buf, double d, int fdarg)
         /* build string in buf under control of fmt */
 	char *end, *s;
 	const char *g;
-	size_t i, ns;
+	size_t i, ns, ng;
 
 	for (s = buf; *fmt; ++fmt, s += strlen(s))
 	    switch (*fmt) { /* process a format char */
@@ -88,10 +88,11 @@ char *_Fmtval(char *buf, double d, int fdarg)
 		end = strchr(s, p->decimal_point[0]);
 		for (ns = 0, i = end - s, g = grps; 0 < i; ++ns) {
 		    /* count separators to add */
-		    if (g[0] <= 0 || i <=g[0] || g[0] == CHAR_MAX)
+		    ng = g[0] - '0';
+		    if (ng <= 0 || i <= ng || ng == CHAR_MAX)
 		        break;
-		    i -= g[0];
-		    if (g[1] != 0)
+		    i -= ng;
+		    if (g[1] != '0')
 		        ++g;
 		}
 
@@ -100,12 +101,13 @@ char *_Fmtval(char *buf, double d, int fdarg)
 		*end = 0 <= fd && fd != CHAR_MAX ? dec_pt : '\0';
 		for (g = grps; 0 < i; --ns) {
 		    /* copy up and insert separators */
-		    if (g[0] <= 0 || i <= g[0] || g[0] == CHAR_MAX)
+		    ng = g[0] - '0';
+		    if (ng <= 0 || i <= ng || ng == CHAR_MAX)
 		        break;
-	            i -= g[0], end -= g[0];
-		    memmove(end, end - ns, g[0]);
+	            i -= ng, end -= ng;
+		    memmove(end, end - ns, ng);
 		    *--end = grp_sep;
-		    if (g[1] != 0)
+		    if (g[1] != '0')
 		        ++g;
 		}
 	    }

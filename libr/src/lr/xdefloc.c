@@ -1,7 +1,7 @@
 /* _Defloc function */
 #include <stdlib.h>
 #include <string.h>
-/* #include "lr/xlocale.h" */
+#include "lr/xlocale.h" 
 
 const char *_Defloc(void) /* find name of default locale */
 {
