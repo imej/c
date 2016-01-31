@@ -8,9 +8,9 @@
 #endif
 
 /* static data */
-_Linfo _Clocale = {"C"};
-static char *curname = "C";
-static char namalloc = 0;     /* curname allocated */
+_Linfo _Clocale = {"C"};      /* by default, locale C */
+static char *curname = "C";   /* initial locale name */
+static char namalloc = 0;     /* flag if curname allocated */
 static const char *mats[_NCAT] = {
     NULL, "collate:", "ctype:", "monetary:", "numeric:", "time:"
 };

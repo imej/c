@@ -45,58 +45,60 @@ _Linfo *_Getloc(const char *nmcat, const char *lname) /* get locale pointer, giv
     }
 
     for (p = &_Clocale; p; p = p->_Next) {
+        /* return it if the locale exists. */
         if (memcmp(p->_Name, ns, nl) == 0 && p->_Name[nl] == '\0') {
+	    /* we need to ensure they are exactly same. */
 	    return p;
 	}
-        {  /* look for locale in file */
-	    char buf[MAXLIN], *sl;
-            FILE *lf;
-	    _Locitem *q;
-	    static char *locfile;    /* locale file name */
+    }	
 
-	    if (locfile) {
+    {  /* look for locale in file */
+        char buf[MAXLIN], *sl;
+        FILE *lf;
+        _Locitem *q;
+        static char *locfile;    /* locale file name */
+
+        if (locfile) {
 	    
-	    } else if ((s = getenv("LOCFILE")) == NULL || ((locfile = malloc(strlen(s) + 1))) == NULL) {
-	        return NULL;
+        } else if ((s = getenv("LOCFILE")) == NULL || ((locfile = malloc(strlen(s) + 1))) == NULL) {
+            return NULL;
+        } else {
+            strcpy(locfile, s);
+        }
+
+        if ((lf = fopen(locfile, "r")) == NULL) {
+            return NULL;
+        }
+
+        while ((q = _Readloc(lf, buf, 6s)) != NULL) {
+            if (q->_Code == L_NAME && memcmp(s, ns, nl) == 0 && *_Skip(s + nl - 1) == '\0') {
+                break; 
+	    }
+	}
+
+	if (q == NULL) {
+	    P = NULL;
+	} else if ((p = malloc(sizeof(_Linfo))) == NULL) {
+	    
+	} else if ((sl = malloc(nl + 1)) == NULL) {
+	    free(p), p = NULL;
+	} else {
+	    /* build locale */
+	    *p = _Clocale;
+	    p->_Name = memcpy(sl, ns, nl);
+	    sl[nl] = '\0';
+	    if (_Makeloc(lf, buf, p)) {
+	        p->_Next = _Clocale._Next, _Clocale._Next = p;
 	    } else {
-	        strcpy(locfile, s);
-	    }
-
-	    if ((lf = fopen(locfile, "r")) == NULL) {
-	        return NULL;
-	    }
-
-	    while ((q = _Readloc(lf, buf, 6s)) != NULL) {
-	        if (q->_Code == L_NAME && memcmp(s, ns, nl) == 0 && *_Skip(s + nl - 1) == '\0') {
-		    break; 
-		}
-	    }
-
-	    if (q == NULL) {
-	        P = NULL;
-	    } else if ((p = malloc(sizeof(_Linfo))) == NULL) {
-	    
-	    } else if ((sl = malloc(nl + 1)) == NULL) {
+	        /* parsing error reading locale file */
+	        fputs(buf, stderr);
+	        fputs("\n-- invalid locale file line\n", stderr);
+	        _Freeloc(p);
 	        free(p), p = NULL;
-	    } else {
-	        /* build locale */
-		*p = _Clocale;
-		p->_Name = memcpy(sl, ns, nl);
-		sl[nl] = '\0';
-		if (_Makeloc(lf, buf, p)) {
-		    p->_Next = _Clocale._Next, _Clocale._Next = p;
-		} else {
-		    /* parsing error reading locale file */
-		    fputs(buf, stderr);
-		    fputs("\n-- invalid locale file line\n", stderr);
-		    _Freeloc(p);
-		    free(p), p = NULL;
-		}
 	    }
-
-	    fclose(lf);
-	    return p;
 	}
 
+	fclose(lf);
+	return p;
     }
 }

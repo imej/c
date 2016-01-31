@@ -2,6 +2,20 @@
 #include "lr/xstate.h"
 #include "lr/xtinfo.h"
 
+/* The structure of a locale: 
+   name: the name of the locale. 
+   next: link to the next locale. the first locale points to NULL. 
+   costate: ? 
+   ctype: this is the CType function 
+   tolower: this is the Tolower function 
+   toupper: this is the Toupper function 
+   mbcurmax: ? 
+   mbstate: ?
+   wcstate: ?
+   lc: locale of money and number 
+   time: locale of time, which is defined in xtinfo.h */
+
+
 typedef struct _Linfo {
     const char *_Name; /* must be first */
     struct _Linfo *_Next;
