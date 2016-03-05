@@ -1,13 +1,29 @@
-/* remove trailing blanks and tabs from each line of input,
-   and to delete entirely blank lines */
+/* I check a C program for rudimentary syntax errors: 
+   - unbalanced parentheses, brackets and braces */
 #include <stdio.h>
 #include <stdlib.h>
 
 #define MAXLINE 1000
+enum OpenSymbol {
+    PR,  /* Parenthese */
+    BK,  /* Bracket */
+    BA,  /* Brace */
+    SQ,  /* Single Quote */
+    DQ,  /* Double Quote */
+    CM  /* Comments */
+};
+
+typedef struct MyStack {
+    enum OpenSymbol os;
+    int lineNo;
+    struct MyStack *previous;
+} MyStack;
+
+
 
 int catchline(char line[], int maxline);
 void copy(char to[], char from[]);
-int rtrim(char str[], int len);
+int removeComments(char from[], char to[], int len, int *inCom);
 
 int main(void)
 {
@@ -16,8 +32,11 @@ int main(void)
     int max;  /* maximum length of the lines that have been read */
     int cl;   /* length of one time read. <= MAXLINE */
     char *line;   /* current line */
+    char *noComm;   /* comments removed */
     char *ost;  /* the output sting - includes all lines that are longer than 80 chars */
     char *buf;      /* current reading (one time) */
+
+    int ic = 0;  /* in comments mark 0 - false, 1 - true */
 
     max = 0;
     len = 0;
@@ -25,6 +44,7 @@ int main(void)
     /* initialize buffer to be MAXLINE */
     buf = calloc(MAXLINE, sizeof(char));
     line = calloc(MAXLINE, sizeof(char));
+    noComm = calloc(MAXLINE, sizeof(char));
     ost = calloc(MAXLINE, sizeof(char));
 
     while ((cl = catchline(buf, MAXLINE)) > 0) {
@@ -44,14 +64,18 @@ int main(void)
 	    }
 	}
 
-        len = rtrim(line, len);
+        if (len > MAXLINE) {
+	    noComm = realloc(noComm, len * sizeof(char));
+	}
+
+        len = removeComments(line, noComm, len, &ic);
 
         if (len > 0) {
 	    max += len;
 	    if (max > MAXLINE) {
 	        ost = realloc(ost, max * sizeof(char));
 	    }
-	    copy(&ost[max-len], line);
+	    copy(&ost[max-len], noComm);
 	}
     }
 
@@ -61,6 +85,7 @@ int main(void)
 
     free(buf);
     free(line);
+    free(noComm);
     free(ost);
 
     return 0;
@@ -93,40 +118,37 @@ void copy(char to[], char from[])
     }
 }
 
-int rtrim(char str[], int len)
+int removeComments(char from[], char to[], int len, int *inCom)
 {
-    /* Purpose: remove all trailing blanks and tabs from str 
-       Arguments: 1) str - the string needs to be processed.
-                  2) len - length of the string 
-       return: 1) positive int - the new length of the string. 
-               2) 0 - the string becomes empty
-	       3) -1 - error 
-       notes: str[len] must be '\0' */
+    int oq = 0;  /* open quotation mark 0 - false, 1 - true */
+    int i = 0;
+    int j = 0;
 
-    int i, rv, flag;
-    
-    if (len > 0 && str != NULL && str[len] == '\0') {
-        rv = len;
-        if (str[rv - 1] == '\n') {
-	    flag = 1;
+    while (from[i] != '\0') {
+        if (*(inCom) || (!oq && from[i] == '/' && from[i+1] == '*')) {
+	    /* we are in comments. */
+	    if (from[i] == '*' && from[i+1] == '/') {
+	        /* comments end */
+		*inCom = 0;
+		i = i + 2;
+	    } else {
+	        if (*inCom == 0) {
+		    *inCom = 1;
+		}
+	        i++;
+	    }    
 	} else {
-	    flag = 0;
-	}
+	    /* we are not in comments */
+            to[j++] = from[i++];
 
-        for (i = len - 1; i >= 0 && (str[i] == ' ' || str[i] == '\t' || str[i] == '\n'); i--) {
-	    str[i] = '\0';
-	    rv--;
+	    if (from[i] != '\'' && from[i-1] == '\"') {
+	        /* open quotation */
+		oq = (oq + 1) % 2;
+	    }
 	}
-
-	if (rv > 0 && flag > 0) {
-	    /* not an empty string, add \n back*/
-            str[rv] = '\n';
-            rv++;
-	    str[rv] = '\0';
-	}
-	return rv;
-    } else {
-        return -1;
     }
 
+    to[j] = '\0';
+
+    return j;
 }
