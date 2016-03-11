@@ -1,5 +1,17 @@
 /* I check a C program for rudimentary syntax errors: 
-   - unbalanced parentheses, brackets and braces */
+   - unbalanced parentheses, brackets and braces 
+   RULES:
+   1. Closing characters must be the same type as the most recent openning characters.
+      Except in comments or between " or '.
+   2. C comments do not nest.
+   3. Anything can appear between "s
+   4. Parentheses, brackets, single/doulbe quotes cannot across lines
+   5. Things can appear between 's:
+       - Single characters
+       - escapes: \a, \b, \f, \n, \r, \t, \v, \\, \', \", \?
+                  \nnn (n = 0-7)
+		  \xhh (h = 0-9, a-f, A-F) 
+ */
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -19,17 +31,45 @@ typedef struct MyStack {
     struct MyStack *previous;
 } MyStack;
 
+MyStack *Init_MyStack(enum OpenSymbol opsym, MyStack *preMS)
+{
+    MyStack *p = malloc(sizeof(MyStack));
 
+    if (p != NULL) {
+        p->os = opsym;
+	p->previous = preMS;
+    }
+
+    return p;
+}
+
+MyStack *Destroy_MyStack(MyStack *p)
+{
+    if (p != NULL) {
+        MyStack *pre = p->previous;
+        free(p);
+	return pre;
+    } else {
+        return NULL;
+    }
+}
+
+void Destroy_All(MyStack *p)
+{
+    while (p != NULL) {
+        p = Destroy_MyStack(p);
+    }
+}
 
 int catchline(char line[], int maxline);
 void copy(char to[], char from[]);
 int removeComments(char from[], char to[], int len, int *inCom);
+int isValidChar(char *arg);
 
 int main(void)
 {
-    int i;
+    int i, j;
     int len;  /* length of the current line */
-    int max;  /* maximum length of the lines that have been read */
     int cl;   /* length of one time read. <= MAXLINE */
     char *line;   /* current line */
     char *noComm;   /* comments removed */
@@ -38,7 +78,6 @@ int main(void)
 
     int ic = 0;  /* in comments mark 0 - false, 1 - true */
 
-    max = 0;
     len = 0;
 
     /* initialize buffer to be MAXLINE */
@@ -64,23 +103,30 @@ int main(void)
 	    }
 	}
 
-        if (len > MAXLINE) {
-	    noComm = realloc(noComm, len * sizeof(char));
+        j = 0;
+	/* jump over comments */
+	while (ic && line[j] != '\0') {
+	    if (line[j] == '*' && line[j+1] == '/') {
+	        ic = 0;
+	        j += 2;
+		break;
+	    } else {
+	        j++;
+	    } 
 	}
 
-        len = removeComments(line, noComm, len, &ic);
+	while (line[j] != '\0') {
+	    switch (line[j]) {
+	        case '\'':
+                    
+		    break;
 
-        if (len > 0) {
-	    max += len;
-	    if (max > MAXLINE) {
-	        ost = realloc(ost, max * sizeof(char));
+		default: 
+		    j++;
+		    break;
 	    }
-	    copy(&ost[max-len], noComm);
 	}
-    }
 
-    if (max > 0) {
-        printf("%s", ost);
     }
 
     free(buf);
@@ -151,4 +197,65 @@ int removeComments(char from[], char to[], int len, int *inCom)
     to[j] = '\0';
 
     return j;
+}
+
+int isValidChar(char *arg)
+{
+    /* check if the parameter (C string - ends with \0) is a char expression.
+       1. start and end with '
+       2. a single character that is not ', ", \, ?
+       3. two characters that are \a, \b, \f, \n, \r, \t, \v, \\, \', \", \?
+       4. four characters that are \nnn (n = 0-7) or \xhh (h = 0-9, a-f, A-F)
+
+       return: 0 - false
+               1 - true
+     */
+    int len = 0;
+
+    if (arg == NULL) {
+        return 0;
+    }
+
+    while (arg[len] != '\0') {
+        len++;
+    }
+
+    if (len < 3 || len > 6 || len == 5 || arg[0] != '\'' || arg[len-1] != '\'') {
+        return 0;
+    }
+
+    if (arg[1] != '\\') {
+        if (len == 3 && arg[1] != '\'' && arg[1] != '\"' && arg[1] != '\?' && arg[1] != '\\') {
+            return 1;
+	}
+    } else {
+        switch (len) {
+	    case 4:
+	        switch (arg[2]) {
+		    case 'a':
+		    case 'b':
+		    case 'f':
+		    case 'n':
+		    case 'r':
+		    case 't':
+		    case 'v':
+		    case '\\':
+		    case '\'':
+		    case '\?':
+		    case '\"':
+		        return 1;
+			break;
+		}
+		break;
+	    case 6:
+	        if (arg[2] >= '0' && arg[2] <= '7' && arg[3] >= '0' && arg[3] <= '7' && arg[4] >= '0' && arg[4] <= '7') {
+		    return 1;
+		} else if (arg[2] == 'x' && ((arg[3] >= '0' && arg[3] <= '9') || (arg[3] >= 'a' && arg[3] <= 'f') || (arg[3] >= 'A' && arg[3] <= 'F')) && ((arg[4] >= '0' && arg[4] <= '9') || (arg[4] >='a' && arg[4] <= 'f') || (arg[4] >= 'A' && arg[4] <='F'))) {
+		    return 1;
+		}
+		break;
+	}
+    } 
+
+    return 0;
 }
