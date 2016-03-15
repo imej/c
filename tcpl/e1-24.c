@@ -71,10 +71,12 @@ int main(void)
     int i, j;
     int len;  /* length of the current line */
     int cl;   /* length of one time read. <= MAXLINE */
+    int ln = 0;  /* line number */
     char *line;   /* current line */
     char *noComm;   /* comments removed */
     char *ost;  /* the output sting - includes all lines that are longer than 80 chars */
     char *buf;      /* current reading (one time) */
+    int steps;
 
     int ic = 0;  /* in comments mark 0 - false, 1 - true */
 
@@ -87,6 +89,7 @@ int main(void)
     ost = calloc(MAXLINE, sizeof(char));
 
     while ((cl = catchline(buf, MAXLINE)) > 0) {
+        ln++;
         copy(line, buf);
 	len = cl;
         if (cl == MAXLINE - 1 && buf[MAXLINE - 2] != '\n') {
@@ -117,10 +120,55 @@ int main(void)
 
 	while (line[j] != '\0') {
 	    switch (line[j]) {
-	        case '\'':
+	        case '\"': /* first, skip string */
+		    steps = checkString(line, j);
+		    if (steps < 0) {
+		        printf("Error in line %d around \"", ln);
+			goto ex;
+		    } else {
+		        j = j + steps + 1;
+		    }
+		    break;
+   
+                case '\'': /* skip char */
+                    if (j > 0 && line[j-1] != ' ' && line[j-1] != '\t' && line[j-1] != '=' && line[j-1] != ',' && line[j-1] != '(' && line[j-1] != '[' && line[j-1] != '{') {
+		        printf("Error in line %d - \' is misplaced.\n", ln);
+			goto ex;
+		    } 
+
+                    switch (line[++j]) {
+		        case '\\': 
+                            if (line[j+2] == '\'') {
+			        /* escape */
+			        if (line[j+1] != 'a' || line[j+1] != 'b' || line[j+1] != 'f' || line[j+1] != 'n' || line[j+1] != 'r' || line[j+1] != 't' || line[j+1] != 'v' || line[j+1] != '\\' || line[j+1] != '\'' || line[j+1] != '\"' || line[j+1] != '\?' ) {
+				    printf("Error in line %d - around \'", ln);
+				    goto ex;
+				} else {
+				    j += 3;
+				}
+			    } else if (line[j+4] == '\'') {
+			        /* '\nnn' or '\xhh' */
+				if (line[j+1] == 'x') {
+				    if (line[j+2] >= '0' && line[j+2] <= '9' || line[j+2] >= 'a'&& line[j+2] <= 'f' || line[j+2] >= 'A' && line[j+2] <= 'F' && line[j+3] >= '0' && line[j+3] <= '9' || line[j+3] >= 'a'&& line[j+3] <= 'f' || line[j+3] >= 'A' && line[j+3] <= 'F') {
+				        j += 5;
+				    } else {
+				        printf("Error in line %d - around \'", ln);
+					goto ex;
+				    }
+				} else if (line[j+1] >= '0' and line[j+1] <= '7') {
+				    
+				} else {
+				        printf("Error in line %d - around \'", ln);
+					goto ex;
+				}
+			    
+			    }
+			    break;
+
+			default:
+		    }
                     
 		    break;
-
 		default: 
 		    j++;
 		    break;
@@ -128,7 +176,7 @@ int main(void)
 	}
 
     }
-
+ex:
     free(buf);
     free(line);
     free(noComm);
@@ -201,32 +249,43 @@ int removeComments(char from[], char to[], int len, int *inCom)
 
 int isValidChar(char *arg)
 {
-    /* check if the parameter (C string - ends with \0) is a char expression.
+    /* check if the parameter (C string - ends with \0) includes (starts) a char expression.
        1. start and end with '
        2. a single character that is not ', ", \, ?
        3. two characters that are \a, \b, \f, \n, \r, \t, \v, \\, \', \", \?
        4. four characters that are \nnn (n = 0-7) or \xhh (h = 0-9, a-f, A-F)
 
-       return: 0 - false
-               1 - true
+       return: -1 - false
+               >=0 - the length of the char expression.
      */
-    int len = 0;
+    int len, i, end;
 
     if (arg == NULL) {
-        return 0;
+        return -1;
     }
 
-    while (arg[len] != '\0') {
+    end = 0;
+    for (i = 1, len = 1; arg[i] != '\0'; i++) {
+        if (arg[i] = '\'' && arg[i-1] != '\\') {
+	    len++;
+	    end = 1;
+	    break;
+	}
+
         len++;
     }
 
+    if (end == 0) {
+        return -1
+    }
+
     if (len < 3 || len > 6 || len == 5 || arg[0] != '\'' || arg[len-1] != '\'') {
-        return 0;
+        return -1;
     }
 
     if (arg[1] != '\\') {
         if (len == 3 && arg[1] != '\'' && arg[1] != '\"' && arg[1] != '\?' && arg[1] != '\\') {
-            return 1;
+            return len;
 	}
     } else {
         switch (len) {
@@ -243,19 +302,95 @@ int isValidChar(char *arg)
 		    case '\'':
 		    case '\?':
 		    case '\"':
-		        return 1;
+		        return len;
 			break;
 		}
 		break;
 	    case 6:
 	        if (arg[2] >= '0' && arg[2] <= '7' && arg[3] >= '0' && arg[3] <= '7' && arg[4] >= '0' && arg[4] <= '7') {
-		    return 1;
+		    return len;
 		} else if (arg[2] == 'x' && ((arg[3] >= '0' && arg[3] <= '9') || (arg[3] >= 'a' && arg[3] <= 'f') || (arg[3] >= 'A' && arg[3] <= 'F')) && ((arg[4] >= '0' && arg[4] <= '9') || (arg[4] >='a' && arg[4] <= 'f') || (arg[4] >= 'A' && arg[4] <='F'))) {
-		    return 1;
+		    return len;
 		}
 		break;
 	}
     } 
 
-    return 0;
+    return -1;
+}
+
+/* int checkString(char line[], int from) 
+   Description: verify proper string (double quotes delimited) within a line of a C program.
+   Parameters: - char line[]: characters sequence that includes string(s).
+               - int from: the index that the string (") starts. 
+   Return: int: >= 0 the number of charactor(s) between "
+                -1 something is wrong
+ */
+int checkString(char line[], int from) 
+{
+    int rv, end;
+
+    if (from > 0 && line[from-1] != ' ' && line[from-1] != '\t' && line[from-1] != '=' && line[from-1] != ',' && line[from-1] != '(' && line[from-1] != '[' && line[from-1] != '{') {
+        return -1;
+    } 
+
+    end = 0;
+
+    for (rv = 0; line[++from] != '\0'; rv++) {
+        if (line[from] == '\"' && line[from-1] != '\\' && (line[from+1] == '\n' || line[from+1] == ';' || line[from+1] == ' ' || line[from+1] == '\t' || line[from+1] == ',' || line[from+1] == ')' || line[from+1] == ']' || line[from+1] == '}')) {
+	    /* end of string */
+	    end = 0;
+	    break;
+	} else {
+	    if (line[from] == '\n') {
+	        return -1;
+	    }
+	}
+    }
+
+    if (end) {
+        return rv;
+    } else {
+        return -1;
+    }
+}
+
+/*
+   int checkChar(char line[], int from)
+   Description: verify proper char (single quote delimited) with in a line of a C program.
+   Parameters: - char line[]: characters sequence that includes string(s).
+               - int from: the index that the char (') starts. 
+   Return: int: >= 0 the number of charactor(s) between '
+                -1 something is wrong
+ */
+int checkChar(char line[], int from)
+{
+    int rv, i, end;
+    char *p;
+
+    if (from > 0 && line[from-1] != ' ' && line[from-1] != '\t' && line[from-1] != '=' && line[from-1] != ',' && line[from-1] != '(' && line[from-1] != '[' && line[from-1] != '{') {
+        return -1;
+    } 
+
+    /* The longest char expression is: '\xhh' - includes 6 characters. */
+    p = malloc(7 * sizeof(char));
+    
+    for (i = 0; i < 6 && line[i] != '\0'; i++) {
+        p[i] = line[i];
+    }
+
+    p[6] = '\0'
+
+    rv = isValidChar(p);
+
+    if (rv >= 0) {
+        end = from + rv + 1;
+        if (line[end] == ' ' || line[end] == '\t' || line[end] == '+' || line[end] == '-' || line[end] == '*' || line[end] == '/' || line[end] == '%' \\ line[end] == ',' || line[end] == ')' || line[end] == ']' || line[end] == '}') {
+	    return rv;
+	} else {
+	    return -1;
+	}
+    } else {
+        return -1;
+    }
 }
