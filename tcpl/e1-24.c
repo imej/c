@@ -65,6 +65,8 @@ int catchline(char line[], int maxline);
 void copy(char to[], char from[]);
 int removeComments(char from[], char to[], int len, int *inCom);
 int isValidChar(char *arg);
+int checkChar(char line[], int from);
+int checkString(char line[], int from); 
 
 int main(void)
 {
@@ -123,7 +125,7 @@ int main(void)
 	        case '\"': /* first, skip string */
 		    steps = checkString(line, j);
 		    if (steps < 0) {
-		        printf("Error in line %d around \"", ln);
+		        printf("Error in line %d around \".", ln);
 			goto ex;
 		    } else {
 		        j = j + steps + 1;
@@ -131,41 +133,12 @@ int main(void)
 		    break;
    
                 case '\'': /* skip char */
-                    if (j > 0 && line[j-1] != ' ' && line[j-1] != '\t' && line[j-1] != '=' && line[j-1] != ',' && line[j-1] != '(' && line[j-1] != '[' && line[j-1] != '{') {
-		        printf("Error in line %d - \' is misplaced.\n", ln);
+		    steps = checkChar(line, j);
+		    if (steps < 0) {
+		        printf("Error in line %d around \'.", ln);
 			goto ex;
-		    } 
-
-                    switch (line[++j]) {
-		        case '\\': 
-                            if (line[j+2] == '\'') {
-			        /* escape */
-			        if (line[j+1] != 'a' || line[j+1] != 'b' || line[j+1] != 'f' || line[j+1] != 'n' || line[j+1] != 'r' || line[j+1] != 't' || line[j+1] != 'v' || line[j+1] != '\\' || line[j+1] != '\'' || line[j+1] != '\"' || line[j+1] != '\?' ) {
-				    printf("Error in line %d - around \'", ln);
-				    goto ex;
-				} else {
-				    j += 3;
-				}
-			    } else if (line[j+4] == '\'') {
-			        /* '\nnn' or '\xhh' */
-				if (line[j+1] == 'x') {
-				    if (line[j+2] >= '0' && line[j+2] <= '9' || line[j+2] >= 'a'&& line[j+2] <= 'f' || line[j+2] >= 'A' && line[j+2] <= 'F' && line[j+3] >= '0' && line[j+3] <= '9' || line[j+3] >= 'a'&& line[j+3] <= 'f' || line[j+3] >= 'A' && line[j+3] <= 'F') {
-				        j += 5;
-				    } else {
-				        printf("Error in line %d - around \'", ln);
-					goto ex;
-				    }
-				} else if (line[j+1] >= '0' and line[j+1] <= '7') {
-				    
-				} else {
-				        printf("Error in line %d - around \'", ln);
-					goto ex;
-				}
-			    
-			    }
-			    break;
-
-			default:
+		    } else {
+		        j = j + steps + 1;
 		    }
                     
 		    break;
@@ -266,7 +239,7 @@ int isValidChar(char *arg)
 
     end = 0;
     for (i = 1, len = 1; arg[i] != '\0'; i++) {
-        if (arg[i] = '\'' && arg[i-1] != '\\') {
+        if (arg[i] == '\'' && arg[i-1] != '\\') {
 	    len++;
 	    end = 1;
 	    break;
@@ -276,7 +249,7 @@ int isValidChar(char *arg)
     }
 
     if (end == 0) {
-        return -1
+        return -1;
     }
 
     if (len < 3 || len > 6 || len == 5 || arg[0] != '\'' || arg[len-1] != '\'') {
@@ -379,13 +352,13 @@ int checkChar(char line[], int from)
         p[i] = line[i];
     }
 
-    p[6] = '\0'
+    p[6] = '\0';
 
     rv = isValidChar(p);
 
     if (rv >= 0) {
         end = from + rv + 1;
-        if (line[end] == ' ' || line[end] == '\t' || line[end] == '+' || line[end] == '-' || line[end] == '*' || line[end] == '/' || line[end] == '%' \\ line[end] == ',' || line[end] == ')' || line[end] == ']' || line[end] == '}') {
+        if (line[end] == ' ' || line[end] == '\t' || line[end] == '+' || line[end] == '-' || line[end] == '*' || line[end] == '/' || line[end] == '%' || line[end] == ',' || line[end] == ')' || line[end] == ']' || line[end] == '}') {
 	    return rv;
 	} else {
 	    return -1;
