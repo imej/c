@@ -312,7 +312,8 @@ int checkString(char line[], int from)
     for (rv = 0; line[++from] != '\0'; rv++) {
         if (line[from] == '\"' && line[from-1] != '\\' && (line[from+1] == '\n' || line[from+1] == ';' || line[from+1] == ' ' || line[from+1] == '\t' || line[from+1] == ',' || line[from+1] == ')' || line[from+1] == ']' || line[from+1] == '}')) {
 	    /* end of string */
-	    end = 0;
+	    end = 1;
+	    rv++;
 	    break;
 	} else {
 	    if (line[from] == '\n') {
@@ -348,8 +349,8 @@ int checkChar(char line[], int from)
     /* The longest char expression is: '\xhh' - includes 6 characters. */
     p = malloc(7 * sizeof(char));
     
-    for (i = 0; i < 6 && line[i] != '\0'; i++) {
-        p[i] = line[i];
+    for (i = 0; i < 6 && line[from + i] != '\0'; i++) {
+        p[i] = line[from + i];
     }
 
     p[6] = '\0';
@@ -358,7 +359,7 @@ int checkChar(char line[], int from)
 
     if (rv >= 0) {
         end = from + rv + 1;
-        if (line[end] == ' ' || line[end] == '\t' || line[end] == '+' || line[end] == '-' || line[end] == '*' || line[end] == '/' || line[end] == '%' || line[end] == ',' || line[end] == ')' || line[end] == ']' || line[end] == '}') {
+        if (line[end] == ' ' || line[end] == '\t' || line[end] == '\n' || line[end] == '+' || line[end] == '-' || line[end] == '*' || line[end] == '/' || line[end] == '%' || line[end] == ',' || line[end] == ')' || line[end] == ']' || line[end] == '}') {
 	    return rv;
 	} else {
 	    return -1;
