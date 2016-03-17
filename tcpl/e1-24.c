@@ -67,6 +67,7 @@ int removeComments(char from[], char to[], int len, int *inCom);
 int isValidChar(char *arg);
 int checkChar(char line[], int from);
 int checkString(char line[], int from); 
+int checkComments(char line[], int from, int *ic);
 
 int main(void)
 {
@@ -141,6 +142,16 @@ int main(void)
 		        j = j + steps + 1;
 		    }
                     
+		    break;
+
+		case '/': /* check comments */
+                    steps = checkComments(line, j, &ic);
+		    if (steps >= 0) { 
+		        j = j + steps + 1;
+		    } else { /* not a comment */
+		        j++;
+		    } 
+
 		    break;
 		default: 
 		    j++;
@@ -367,4 +378,18 @@ int checkChar(char line[], int from)
     } else {
         return -1;
     }
+}
+
+/*
+    int checkComments(char line[], int from, int *ic)
+    Description: Verify content of comments
+    Parameters: - char line[]: characters sequence that includes comments.
+                - int from: the index that the '/' starts.
+		- int *ic: the address of the comments indicater.
+    Return: int: >= 0 the number of charactor(s) of the comments
+                 -1 something is wrong.
+ */
+int checkComments(char line[], int from, int *ic)
+{
+
 }
