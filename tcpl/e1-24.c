@@ -126,7 +126,7 @@ int main(void)
 	        case '\"': /* first, skip string */
 		    steps = checkString(line, j);
 		    if (steps < 0) {
-		        printf("Error in line %d around \".", ln);
+		        printf("Error in line %d around \".\n", ln);
 			goto ex;
 		    } else {
 		        j = j + steps + 1;
@@ -136,7 +136,7 @@ int main(void)
                 case '\'': /* skip char */
 		    steps = checkChar(line, j);
 		    if (steps < 0) {
-		        printf("Error in line %d around \'.", ln);
+		        printf("Error in line %d around \'.\n", ln);
 			goto ex;
 		    } else {
 		        j = j + steps + 1;
@@ -159,6 +159,11 @@ int main(void)
 	    }
 	}
 
+    }
+
+    /* make sure comments are closed */
+    if (ic) {
+        printf("Reached the end of the file while comments are not closed.\n");
     }
 ex:
     free(buf);
@@ -391,5 +396,20 @@ int checkChar(char line[], int from)
  */
 int checkComments(char line[], int from, int *ic)
 {
+    int i = 0;
+    if (line[from + i] == '/' && line[from + i + 1] == '*') {
+        *ic = 1;
+	i += 2;
+    }
 
+    while (line[from + i] != '\0') {
+        if (line[from + i] == '*' && line[from + i + 1] == '/') {
+	    *ic = 0;
+	    i += 2;
+	} else {
+	    i++;
+	}
+    }
+
+    return i;
 }
