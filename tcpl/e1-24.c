@@ -31,12 +31,13 @@ typedef struct MyStack {
     struct MyStack *previous;
 } MyStack;
 
-MyStack *Init_MyStack(enum OpenSymbol opsym, MyStack *preMS)
+MyStack *Init_MyStack(enum OpenSymbol opsym, int ln, MyStack *preMS)
 {
     MyStack *p = malloc(sizeof(MyStack));
 
     if (p != NULL) {
         p->os = opsym;
+	p->lineNo = ln;
 	p->previous = preMS;
     }
 
@@ -63,7 +64,6 @@ void Destroy_All(MyStack *p)
 
 int catchline(char line[], int maxline);
 void copy(char to[], char from[]);
-int removeComments(char from[], char to[], int len, int *inCom);
 int isValidChar(char *arg);
 int checkChar(char line[], int from);
 int checkString(char line[], int from); 
@@ -76,10 +76,11 @@ int main(void)
     int cl;   /* length of one time read. <= MAXLINE */
     int ln = 0;  /* line number */
     char *line;   /* current line */
-    char *noComm;   /* comments removed */
-    char *ost;  /* the output sting - includes all lines that are longer than 80 chars */
     char *buf;      /* current reading (one time) */
     int steps;
+    MyStack *ms = NULL;
+    MyStack *tmpMs;
+    char c;
 
     int ic = 0;  /* in comments mark 0 - false, 1 - true */
 
@@ -88,8 +89,6 @@ int main(void)
     /* initialize buffer to be MAXLINE */
     buf = calloc(MAXLINE, sizeof(char));
     line = calloc(MAXLINE, sizeof(char));
-    noComm = calloc(MAXLINE, sizeof(char));
-    ost = calloc(MAXLINE, sizeof(char));
 
     while ((cl = catchline(buf, MAXLINE)) > 0) {
         ln++;
@@ -153,6 +152,67 @@ int main(void)
 		    } 
 
 		    break;
+
+		case '(': /* parenthese starts */
+                    tmpMs = Init_MyStack(PR, ln, ms);
+		    ms = tmpMs;
+		    j++;
+		    break;
+
+		case '[': /* bracket starts */
+                    tmpMs = Init_MyStack(BK, ln, ms);
+		    ms = tmpMs;
+		    j++;
+		    break;
+
+		case '{': /* brace starts */
+                    tmpMs = Init_MyStack(BA, ln, ms);
+		    ms = tmpMs;
+		    j++;
+		    break;
+
+		case ')': /* close parenthese */
+		    if (ms == NULL) {
+		        printf("Error in line %d - ) without (.", ln);
+			goto ex;
+		    } else {
+                        if (ms->os == PR) {
+		            ms = Destroy_MyStack(ms);
+			    j++;
+		        } else {
+		            goto unclose;
+		        }
+		    }
+		    break;
+
+		case ']': /* close parenthese */
+		    if (ms == NULL) {
+		        printf("Error in line %d - ] without [.", ln);
+			goto ex;
+		    } else {
+                        if (ms->os == BK) {
+		            ms = Destroy_MyStack(ms);
+			    j++;
+		        } else {
+		            goto unclose;
+		        }
+		    }
+		    break;
+
+		case '}': /* close parenthese */
+		    if (ms == NULL) {
+		        printf("Error in line %d - } without {.", ln);
+			goto ex;
+		    } else {
+                        if (ms->os == BA) {
+		            ms = Destroy_MyStack(ms);
+			    j++;
+		        } else {
+		            goto unclose;
+		        }
+		    }
+		    break;
+
 		default: 
 		    j++;
 		    break;
@@ -165,12 +225,32 @@ int main(void)
     if (ic) {
         printf("Reached the end of the file while comments are not closed.\n");
     }
+
+unclose:    
+    if (ms != NULL) {
+        switch (ms->os) {
+	    case PR:
+	        c = '(';
+		break;
+            case BK:
+	        c = '[';
+		break;
+	    case BA:
+	        c = '{';
+		break;
+	    default:
+	        c = '!';
+		break;
+	}
+        printf("Error in line %d, %c is not closed.\n", ms->lineNo, c);
+    }
+
 ex:
     free(buf);
     free(line);
-    free(noComm);
-    free(ost);
-
+    if (ms != NULL) {
+        Destroy_All(ms);
+    }
     return 0;
 }
 
@@ -199,41 +279,6 @@ void copy(char to[], char from[])
     while ((to[i] = from[i]) != '\0') {
         ++i;
     }
-}
-
-int removeComments(char from[], char to[], int len, int *inCom)
-{
-    int oq = 0;  /* open quotation mark 0 - false, 1 - true */
-    int i = 0;
-    int j = 0;
-
-    while (from[i] != '\0') {
-        if (*(inCom) || (!oq && from[i] == '/' && from[i+1] == '*')) {
-	    /* we are in comments. */
-	    if (from[i] == '*' && from[i+1] == '/') {
-	        /* comments end */
-		*inCom = 0;
-		i = i + 2;
-	    } else {
-	        if (*inCom == 0) {
-		    *inCom = 1;
-		}
-	        i++;
-	    }    
-	} else {
-	    /* we are not in comments */
-            to[j++] = from[i++];
-
-	    if (from[i] != '\'' && from[i-1] == '\"') {
-	        /* open quotation */
-		oq = (oq + 1) % 2;
-	    }
-	}
-    }
-
-    to[j] = '\0';
-
-    return j;
 }
 
 int isValidChar(char *arg)
