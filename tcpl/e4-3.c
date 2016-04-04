@@ -72,17 +72,27 @@ int main(void)
 /* getop: get next operator or numeric operand */
 int getop(char s[])
 {
-    int i, c;
+    int i, c, d;
 
+    i = 0;
     while ((s[0] = c = getch()) == ' ' || c == '\t')
         ;
     s[1] = '\0';
-    if(!isdigit(c) && c != '.') {
+    if(!isdigit(c) && c != '.' && c != '+' && c != '-') {
         return c;     /* not a number */
+    } else if (c == '+' || c == '-') {
+        d = getch();
+        if (!isdigit(d)) {
+	    ungetch(d);
+	    return c;  /* not a number */
+	} else {
+	    s[1] = d;
+	    s[2] = '\0';
+	    i = 1;
+	}
     }
 
-    i = 0;
-    if (isdigit(c)) {   /* collect integer part */
+    if (isdigit(c) || i == 1 ) {   /* collect integer part */
         while (isdigit(s[++i] = c = getch()))
 	    ;
     }
