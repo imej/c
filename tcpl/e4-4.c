@@ -20,6 +20,7 @@ double pop(void);
 void printTop(void);
 int getch(void);
 void ungetch(int);
+void dup(void);
 
 int sp = 0;          /* next free stack position */
 double val[MAXVAL];  /* value stack */
@@ -64,11 +65,16 @@ int main(void)
 	        printf("error: zero divisor\n");
 	    }
 	    break;
-	case '\n':
+	case '=':
 	    printf("\t%.8g\n", pop());
 	    break;
 	case 'p':
 	    printTop();
+	    break;
+	case 'd':
+	    dup();
+	    break;
+	case '\n':
 	    break;
 	default:
 	    printf("error: unknown command %s\n", s);
@@ -145,6 +151,17 @@ void printTop(void)
 {
     if (sp > 0) {
         printf("\tTop value of the stack is: %.8g\n", val[sp-1]);    
+    } else {
+        printf("error: stack empty\n");
+    }
+}
+
+/* dup: duplicate the top value */
+void dup(void)
+{
+    if (sp > 0) {
+        val[sp] = val[sp-1];
+	sp++;
     } else {
         printf("error: stack empty\n");
     }
