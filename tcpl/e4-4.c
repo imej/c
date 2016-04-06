@@ -21,6 +21,8 @@ void printTop(void);
 int getch(void);
 void ungetch(int);
 void dup(void);
+void swap(void);
+void clear(void);
 
 int sp = 0;          /* next free stack position */
 double val[MAXVAL];  /* value stack */
@@ -73,6 +75,12 @@ int main(void)
 	    break;
 	case 'd':
 	    dup();
+	    break;
+	case 's':
+	    swap();
+	    break;
+	case 'c':
+	    clear();
 	    break;
 	case '\n':
 	    break;
@@ -165,6 +173,23 @@ void dup(void)
     } else {
         printf("error: stack empty\n");
     }
+}
+
+/* swap: swap the top two values */
+void swap(void)
+{
+    double tmp;
+    if (sp > 1) {
+        tmp = val[sp-1];
+	val[sp-1] = val[sp-2];
+	val[sp-2] = tmp;
+    }
+}
+
+/* clear: clear stack */
+void clear(void)
+{
+    sp = 0;
 }
 
 int getch(void)   /* get a (possibly pushed back) character */
