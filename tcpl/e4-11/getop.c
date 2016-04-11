@@ -6,9 +6,11 @@
 int getop(char s[])
 {
     int i, c;
+    static int ib = EOF;
 
-    while ((s[0] = c = getch()) == ' ' || c == '\t')
-        ;
+    c = (ib == EOF) ? getch() : ib;
+    while ((s[0] = c) == ' ' || c == '\t')
+        c = getch();
     s[1] = '\0';
     if(!isdigit(c) && c != '.') {
         return c;     /* not a number */
@@ -27,7 +29,7 @@ int getop(char s[])
 
     s[i] = '\0';
     if (c != EOF) {
-        ungetch(c);
+        ib = c;
     }
 
     return NUMBER;
