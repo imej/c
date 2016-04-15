@@ -1,15 +1,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <stdlib.h>
 
-#define MAXLINES 5000       /* max #lines to be sorted */
+#define MAXLINES 500000       /* max #lines to be sorted */
 
 char *lineptr[MAXLINES];      /* pointers to text lines */
 
 int readlines(char *lineptr[], int nlines);
 void writelines(char *lineptr[], int nlines);
 
-void qsort(char *lineptr[], int left, int right);
+void m_qsort(char *lineptr[], int left, int right);
 size_t getTime(char *ct, size_t ctlen); 
 
 /* sort input lines */
@@ -22,8 +23,20 @@ int main(void)
     if ((nlines = readlines(lineptr, MAXLINES)) >= 0) {
         getTime(buf, 80);
 	printf("Sorting start: %s\n",buf);
-        qsort(lineptr, 0, nlines-1);
-	writelines(lineptr, nlines);
+	time_t start = time(NULL);
+
+        m_qsort(lineptr, 0, nlines-1);
+
+	time_t end = time(NULL);
+	printf("Time: %f\n", difftime(start, end));
+
+	/* writelines(lineptr, nlines);*/
+
+	while (nlines > 0) {
+	    if (lineptr[--nlines] != NULL) {
+	        free(lineptr[nlines]);
+	    }
+	}
 	return 0;
     } else {
         printf("error: input too big to sort\n");
@@ -43,7 +56,7 @@ int readlines(char *lineptr[], int maxlines)
 
     nlines = 0;
     while ((len = catchline(line, MAXLEN)) > 0) {
-        if (nlines >= maxlines || (p = alloc(len)) == NULL) {
+        if (nlines >= maxlines || (p = malloc(len)) == NULL) { /* alloc => malloc*/
 	    return -1;
 	} else {
 	    line[len-1] = '\0'; /* delete new line */
@@ -82,8 +95,8 @@ int catchline(char s[], int lim)
     return i;
 }
 
-/* qsort: sort v[left]...v[right] into increasing order */
-void qsort(char *v[], int left, int right)
+/* m_qsort: sort v[left]...v[right] into increasing order */
+void m_qsort(char *v[], int left, int right)
 {
     int i, last;
     void swap(char *v[], int i, int j);
@@ -96,8 +109,8 @@ void qsort(char *v[], int left, int right)
         if (strcmp(v[i], v[left]) < 0)
 	    swap(v, ++last, i);
     swap(v, left, last);
-    qsort(v, left, last-1);
-    qsort(v, last+1, right);
+    m_qsort(v, left, last-1);
+    m_qsort(v, last+1, right);
 }
 
 /*swap: interchange v[i] and v[j] */
@@ -110,7 +123,7 @@ void swap(char *v[], int i, int j)
     v[j] = temp;
 }
 
-#define ALLOCSIZE 10000 /* size of available space */
+#define ALLOCSIZE 1000000 /* size of available space */
 
 static char allocbuf[ALLOCSIZE];     /* storage for alloc */
 static char *allocp = allocbuf;      /* next free position */
