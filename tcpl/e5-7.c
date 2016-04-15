@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 #define MAXLINES 5000       /* max #lines to be sorted */
 
@@ -9,13 +10,18 @@ int readlines(char *lineptr[], int nlines);
 void writelines(char *lineptr[], int nlines);
 
 void qsort(char *lineptr[], int left, int right);
+size_t getTime(char *ct, size_t ctlen); 
 
 /* sort input lines */
 int main(void)
 {
+    char buf[80];
+
     int nlines;   /* number of input lines read */
 
     if ((nlines = readlines(lineptr, MAXLINES)) >= 0) {
+        getTime(buf, 80);
+	printf("Sorting start: %s\n",buf);
         qsort(lineptr, 0, nlines-1);
 	writelines(lineptr, nlines);
 	return 0;
@@ -126,4 +132,13 @@ void afree(char *p)
     /* free storage pointed to by p */
     if (p >= allocbuf && p < allocbuf + ALLOCSIZE)
         allocp = p;
+}
+
+/* Current system time */
+size_t getTime(char *ct, size_t ctlen) 
+{
+    time_t now = time(NULL);
+    struct tm *ts = localtime(&now);
+
+    return strftime(ct, ctlen, "%a %Y-%m-%d %H:%M:%S %Z", ts);
 }
