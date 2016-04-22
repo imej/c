@@ -1,3 +1,4 @@
+/* e5-14: support decreasing sort */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -11,21 +12,43 @@ void writelines(char *lineptr[], int nlines);
 void mqsort(void *lineptr[], int left, int right, 
            int (*comp)(void *, void *));
 int numcmp(char *, char *);
+void reverseF(void *v[], int len) ;
 
 /* sort input lines */
 int main(int argc, char *argv[])
 {
-    int nlines;         /* number of input lines read */
-    int numeric = 0;    /* 1 if numeric sort */
-
-    if (argc > 1 && strcmp(argv[1], "-n") == 0) {
-        numeric = 1;
+    int i, j, c, nlines;         /* number of input lines read */
+    int numeric = 0;             /* 1 if numeric sort */
+    int reverse = 0;             /* 1 if decreasing sort*/
+    for (i = 1; i < argc; i++) {
+        if ((*++argv)[0] == '-') {
+	    for (j = 1; (c = (*argv)[j]) != '\0'; j++) {
+	        switch (c) {
+		    case 'n':
+		        numeric = 1;
+			break;
+		    case 'r':
+		        reverse = 1;
+			break;
+		}
+	    }
+	}
     }
 
     if ((nlines = readlines(lineptr, MAXLINES)) >= 0) {
         mqsort((void **) lineptr, 0, nlines-1, 
 	    (int (*) (void *, void *))(numeric ? numcmp : strcmp));
+
+        if (reverse) {
+	    reverseF((void **)lineptr, nlines);
+	}
 	writelines(lineptr, nlines);
+
+	for (i = 0; i < nlines; i++) {
+	    if (lineptr[i] != NULL) {
+	        free(lineptr[i]);
+	    }
+	}
 	return 0;
     } else {
         printf("input too big to sort\n");
@@ -120,4 +143,14 @@ int catchline(char s[], int lim)
 
     s[i] = '\0';
     return i;
+}
+
+void reverseF(void *v[], int len) 
+{
+    int i;
+    
+    for (i = 0; i+1 < len; i++, len--) {
+        swap(v, i, len-1);
+    }
+    
 }
