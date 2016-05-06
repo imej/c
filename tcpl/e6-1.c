@@ -91,8 +91,18 @@ int getword(char *word, int lim)
     /* jump over comments */
     if (c == '/') {
         if ((c = getch()) == '*') {
-	    while ((c = getch()) != '*' && c != EOF) {
-	        
+	    while ((c = getch()) != EOF) {
+	        if ( c == '*') {
+		    if ((c = getch()) == '/') {
+		        /* comments over, get next character */
+                        while (isspace(c = getch()))
+                            ;
+		        
+		        break;
+		    } else {
+		        ungetch(c);
+		    }
+		}
 	    }
 	} else {
 	    ungetch(c);
@@ -101,11 +111,17 @@ int getword(char *word, int lim)
     }
 
     /* jump over constants */
+    /* to do: 
+       1. recognize char "
+       2. recognize " with in a string */
     if (c == '\"') {
 	while ((c = getch()) != '\"' && c != EOF) 
 	    ;
-        while (isspace(c = getch()))
-            ;
+
+	if (c != EOF) {
+            while (isspace(c = getch()))
+                ;
+	}
     }
 
     if (c != EOF) {
