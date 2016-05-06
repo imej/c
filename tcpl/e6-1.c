@@ -33,6 +33,9 @@ struct key {
 
 int getword(char *, int);
 int binsearch(char *, struct key *, int);
+void ignorePreprocessor();
+
+int isEscape;  
 
 /* count C keywords */
 int main(void)
@@ -40,11 +43,16 @@ int main(void)
     int n;
     char word[MAXWORD];
 
+    ignorePreprocessor();
     while (getword(word, MAXWORD) != EOF) {
         if (isalpha(word[0])) {
 	    if ((n = binsearch(word, keytab, NKEYS)) >= 0) {
 	        keytab[n].count++;
 	    }
+	}
+
+	if (word[0] == '\n') {
+	    ignorePreprocessor();
 	}
     }
 
@@ -111,12 +119,14 @@ int getword(char *word, int lim)
     }
 
     /* jump over constants */
-    /* to do: 
-       1. recognize char "
-       2. recognize " with in a string */
-    if (c == '\"') {
-	while ((c = getch()) != '\"' && c != EOF) 
-	    ;
+    if (c == '\"' && !isEscape) {
+	while (((c = getch()) != '\"' || isEscape) && c != EOF) {
+	    if (c == '\\') {
+	        isEscape = 1;
+	    } else {
+	        isEscape = 0;
+	    }
+	} 
 
 	if (c != EOF) {
             while (isspace(c = getch()))
@@ -126,15 +136,21 @@ int getword(char *word, int lim)
 
     if (c != EOF) {
         *w++ = c;
+	if (c == '\\') {
+	    isEscape = 1;
+	} else {
+	    isEscape = 0;
+	}
     }
 
-    if (!isalpha(c)) {
+    if (!isalpha(c) && c != '_') {
         *w = '\0';
 	return c;
     }
 
     for ( ; --lim > 0; w++) {
-        if (!isalnum(*w = getch())) {
+        *w = getch();
+        if (!isalnum(*w) && *w != '_') {
 	    ungetch(*w);
 	    break;
 	}
@@ -155,4 +171,25 @@ void ungetch(int c)  /* push character back on input */
         printf("ungetch: too many characters\n");
     else 
         buf[bufp++] = c;
+}
+
+/* ignorePreprocessor: ignore the preprocessor lines.
+   I think preprocessor lines start with # and go all the way to the end of the line. 
+   If the line is ended with \, the next line is continued too. */
+void ignorePreprocessor()
+{
+    int c, d;
+    if ((c = getch()) != '#') {
+        return;
+    }
+  
+    while (isspace(d = getch()))
+        ;
+    while (d != '\n' || c == '\\') {
+        c = d;
+        while (isspace(d = getch()))
+            ;
+    }
+
+    ignorePreprocessor();
 }
