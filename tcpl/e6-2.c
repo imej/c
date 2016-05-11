@@ -32,7 +32,7 @@ talloc(void)
 
 /* strdup: duplicate string */
 char *
-strdup(char *s)
+mystrdup(char *s)
 {
     char *p;
 
@@ -52,7 +52,7 @@ addtree(struct tnode *p, char *w)
 
     if (p == NULL) {
         p = talloc();
-	p->word = strdup(w);
+	p->word = mystrdup(w);
 	p->left = p->right = NULL;
     } else if ((cond = strcmp(w, p->word)) == 0) {
         /* existing: do nothing */
@@ -103,7 +103,7 @@ main(int argc, char *argv[])
     while (getword(word, MAXWORD) != EOF) {
         if (isalpha(word[0]) || word[0] == '_') {
 	   tree = addtree(tree, word);
-	   if (root != NULL) {
+	   if (root == NULL) {
 	       root = tree;
 	   }
 	}
@@ -217,6 +217,7 @@ ignorePreprocessor()
 {
     int c, d;
     if ((c = getch()) != '#') {
+        ungetch(c);
         return;
     }
   
