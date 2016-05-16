@@ -1,5 +1,5 @@
 #include "minunit.h"
-#include <tree.h>
+#include <header.h>
 #include <assert.h>
 
 char *test_tree()

@@ -1,7 +1,7 @@
 /* Exercise 6-2 
  * This is the defination of the tree funcitons 
  */
-#include "tree.h"
+#include "header.h"
 
 /* talloc: new tree node */
 struct tnode * talloc(void)
