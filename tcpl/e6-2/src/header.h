@@ -29,5 +29,6 @@ int catchline(char s[], int lim);
 
 /* functions in cprog.c */
 int isPrepro(char line[], int *inpp);
+void rmvCmmts(char line[], int *inCmmts);
 
 #endif

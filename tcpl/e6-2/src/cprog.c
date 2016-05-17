@@ -22,10 +22,10 @@ int isPrepro(char line[], int *inpp)
     if (*inpp) {
          while (line[i++] != '\n')
              ;
-         while (issapce(line[--i])) 
+         while (isspace(line[--i])) 
 	     ;
 	 if (line[i] != '\\') 
-	     *inapp = 0;
+	     *inpp = 0;
 
 	 return 1;
     }
@@ -34,7 +34,7 @@ int isPrepro(char line[], int *inpp)
          ;
 
     if (line[i] == '#') {
-        *inapp = 1;
+        *inpp = 1;
 	return 1;
     }
 
@@ -54,7 +54,9 @@ int isPrepro(char line[], int *inpp)
  */
 void rmvCmmts(char line[], int *inCmmts)
 {
-    int i, k;
+    int i = 0;
+    int k = 0;
+    int j = 0;
     char *str;
 
     for (i = 0; line[i++] != '\0'; )
@@ -63,11 +65,11 @@ void rmvCmmts(char line[], int *inCmmts)
     str = malloc((size_t)i);
 
     if (str == NULL) 
-        return void;
+        return;
 
     if (*inCmmts) {
-        for (k = 0; k < i-1; k++) {
-	    if (line[k] == '*' && line[k+1] = '/') {
+        for (k = 0; k < i-2; k++) {
+	    if (line[k] == '*' && line[k+1] == '/') {
 	        *inCmmts = 0;
                 break;
 	    }
@@ -75,14 +77,32 @@ void rmvCmmts(char line[], int *inCmmts)
 
 	if (*inCmmts) {  /* the whole line is comments */
 	    line[0] = '\0';
-	    return void;
+	    return;
+	} else {
+	    k += 2;
 	}
     }
 
-    for (k += 2; isspace(line[k]) && k < i-1; k++) 
-        ;
+    /* in case, there are more comments in the line. */
+    while (line[k] != '\0') {
+        if (line[k] == '/' && line[k+1] == '*') {
+	    *inCmmts = 1;
+            for (k += 2; k < i-2; k++) {
+	        if (line[k] == '*' && line[k+1] == '/') {
+		    *inCmmts = 0;
+		    k++;
+		    break;
+		}
+	    }
+	} else {
+	    str[j++] = line[k];
+	}
 
-    while (line[k++] != '\0') {
-        if (line[k])
+	k++;
     }
+
+    str[j] = '\0';
+
+    for (i = 0; (line[i] = str[i]) != '\0'; i++)
+        ;   
 }
