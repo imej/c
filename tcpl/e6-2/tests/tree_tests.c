@@ -2,6 +2,29 @@
 #include <header.h>
 #include <assert.h>
 
+char * test_isPrepro()
+{
+    char ln1[] = "this is a test.";
+    int inpp = 0;
+    mu_assert(isPrepro(ln1, &inpp) == 0, "'this is a test.' is a macro");
+
+    char ln2[] = "#this is a test.";
+    inpp = 0;
+    mu_assert(isPrepro(ln2, &inpp) == 1, "'#this is a test.' is not a macro");
+
+    char ln3[] = "#this is a test.\\";
+    inpp = 0;
+    mu_assert(isPrepro(ln3, &inpp) == 1, "'#this is a test.\\ \' is not a macro");
+    mu_assert(inpp == 1, "'#this is a test.\\ \' followed by a macro");
+
+    char ln4[] = "this is a test.";
+    inpp = 1;
+    mu_assert(isPrepro(ln4, &inpp) == 1, "'this is a test.' is a macro when it is within a macro");
+    mu_assert(inpp == 0, "'this is a test.' is not followed by a macro");
+
+
+    return NULL;
+}
 char *test_rmvCmmts()
 {
     char line[] = "this is /* a test";
@@ -71,6 +94,7 @@ char *all_tests()
 
     mu_run_test(test_tree);
     mu_run_test(test_rmvCmmts);
+    mu_run_test(test_isPrepro);
 
     return NULL;
 }

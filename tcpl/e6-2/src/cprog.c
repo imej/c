@@ -20,9 +20,9 @@ int isPrepro(char line[], int *inpp)
     int i;
 
     if (*inpp) {
-         while (line[i++] != '\n')
+         for (i = 0; line[i] != '\0'; i++)
              ;
-         while (isspace(line[--i])) 
+         for (i--; isspace(line[i]); i--) 
 	     ;
 	 if (line[i] != '\\') 
 	     *inpp = 0;
@@ -30,12 +30,20 @@ int isPrepro(char line[], int *inpp)
 	 return 1;
     }
 
-    while (isspace(line[i++]))
-         ;
+    for (i = 0; isspace(line[i]); i++)
+        ;
 
     if (line[i] == '#') {
-        *inpp = 1;
-	return 1;
+         for (i = 0; line[i] != '\0'; i++)
+             ;
+         for (i--; isspace(line[i]); i--) 
+	     ;
+	 if (line[i] == '\\') 
+	     *inpp = 1;
+	 else 
+	     *inpp = 0;
+        
+	 return 1;
     }
 
     return 0;
