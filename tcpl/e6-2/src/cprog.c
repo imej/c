@@ -49,6 +49,13 @@ int isPrepro(char line[], int *inpp)
     return 0;
 }
 
+void rmvPrepro(char line[], int *inpp)
+{
+    if (isPrepro(line, inpp)) {
+        line[0] = '\0';
+    }
+}
+
 /* rmvCmmts: remove comments from a line of a c program. 
  *           It only recognises c comments - slash star star slash.
  * 

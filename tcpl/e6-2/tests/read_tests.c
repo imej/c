@@ -8,11 +8,18 @@
 int main(void)
 {
     char s[MAXLINE] = {0};
+    int inpp = 0;
+    int inCmmts = 0;
  
-    printf("Start testing catchline() \n");
-    printf("Please enter something:");
-    catchline(s, MAXLINE);
-    printf("You entered: %s", s);
+    while (catchline(s, MAXLINE) > 0) {
+        printf("------------------------\n");
+        printf("%s\n", s);
+        rmvPrepro(s, &inpp);
+        rmvCmmts(s, &inCmmts);
+
+        printf("%s\n", s);
+       
+    }
 
     return 0;
 }
