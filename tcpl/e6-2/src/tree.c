@@ -115,3 +115,43 @@ int intree(struct tnode *tree, const char *wd)
         return 1;
     }
 }
+
+/* prtgrp: print in alphabetical order each group of variable names that are
+ *         identical in the first num characters. 
+ */
+void prtgrp(struct tnode *p, int num, char *grp)
+{
+    int len, i;
+    char tmp[MAXLINE] = {0};
+
+    if (p != NULL && num > 0) {
+        prtgrp(p->left, num, grp);
+
+	/* print self */
+	if (p->word != NULL) {
+	    for (len = 0; *(p->word + len) != '\0'; len++) {
+	        ;
+	    }
+
+	    if (num <= len) {
+	        /* only print when there are enough characters. */
+                for (i = 0; i < num; i++) {
+		    tmp[i] = *(p->word + i);
+		}
+
+		tmp[i] = '\0';
+
+		if (strcmp(grp, tmp) != 0) {
+		    /* new group */
+                    strcpy(grp, tmp);
+		    printf("---- Group: %s:\n", grp);
+		}
+
+		printf("%s\n", p->word);
+	    }
+	}
+
+	prtgrp(p->right, num, grp);
+    }
+}
+

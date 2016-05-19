@@ -6,8 +6,10 @@
 
 int main(void)
 {
+    char grp[MAXLINE] = {0};
     struct tnode *tree = read();
-    treeprint(tree);
+
+    prtgrp(tree, 6, grp);
     tdestroy(tree);
 
     return 0;

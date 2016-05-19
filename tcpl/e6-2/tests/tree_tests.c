@@ -151,6 +151,19 @@ char *test_getvar()
     return NULL;
 }
 
+char *test_prtgrp()
+{
+    char *sa[] = {"aaaa", "aaab", "aaac", "aabd", "aabe"};
+    struct tnode *tree = fromSortedArray(sa, 0, 4);
+    char grp[MAXLINE] = {0};
+
+    prtgrp(tree, 3, grp);
+
+    tdestroy(tree);
+
+    return NULL;
+}
+
 char *all_tests()
 {
     mu_suite_start();
@@ -161,6 +174,7 @@ char *all_tests()
     mu_run_test(test_fromSortedArray);
     /* mu_run_test(test_ckeys); */
     mu_run_test(test_getvar);
+    mu_run_test(test_prtgrp);
 
     return NULL;
 }

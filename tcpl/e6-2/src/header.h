@@ -28,6 +28,7 @@ void tdestroy(struct tnode *rt);
 struct tnode * fromSortedArray(char **words, int start, int end);
 struct tnode * searchtree(struct tnode *tree, const char *wd);
 int intree(struct tnode *tree, const char *wd);
+void prtgrp(struct tnode *p, int num, char *grp);
 
 /* functions in read.c */
 int catchline(char s[], int lim);
