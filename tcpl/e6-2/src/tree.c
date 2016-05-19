@@ -86,3 +86,34 @@ struct tnode * fromSortedArray(char **words, int start, int end)
 
     return root;
 }
+
+/*searchtree: search for a word in the tree */
+struct tnode * searchtree(struct tnode *tree, const char *wd)
+{
+    struct tnode *p = tree;
+
+    if (p == NULL || wd == NULL) {
+        return NULL;
+    }
+
+    if (strcmp(p->word, wd) < 0) {
+        p = searchtree(p->right, wd);
+    } else if (strcmp(p->word, wd) > 0){
+        p = searchtree(tree->left, wd);
+    } 
+
+    return p;
+}
+
+/*intree: if a string is in a tree */
+int intree(struct tnode *tree, const char *wd)
+{
+    struct tnode *p = searchtree(tree, wd);
+    if (p == NULL) {
+        printf("intree returns 0");
+        return 0;
+    } else {
+        printf("intree returns 1");
+        return 1;
+    }
+}

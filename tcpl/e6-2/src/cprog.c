@@ -121,3 +121,58 @@ void rmvCmmts(char line[], int *inCmmts)
     for (i = 0; (line[i] = str[i]) != '\0'; i++)
         ;   
 }
+
+/* getVar: search a string from the start posion to get next C variable. 
+ *         a C variable must:
+ *         1) only contains letters and/or digits and/or _
+ *         2) must start with a letter or _
+ *         3) must not be a C keyword
+ * params: char line[] - the string to search
+ *         int start - the position to begin the searching, must >= 0
+ *         struct tnode *keytree - a b-tree holds all keywords
+ *         char rv[] - the variable found.
+ *
+ * return: int >= 0 the position in line the variable is found.        
+ *             -1 find nothing
+ */
+int getvar(const char line[], const int start, struct tnode *keytree, char rv[])
+{
+    int len, i, j, rp;
+    
+    if (line == NULL || keytree == NULL || start < 0 || rv == NULL) {
+        return -1;
+    }
+    
+    for (len = 0; line[len] != '\0'; len++)
+        ;
+    
+    if (start >= len) {
+        return -1;
+    }
+
+    i = start;
+
+nxt:    
+    for (; i < len && !isalpha(line[i]) && line[i] != '_'; i++) {
+        ;
+    }
+
+    if (i == len) {
+        return -1;
+    }
+
+    j = 0;
+    rp = i;
+    rv[j] = line[i];
+    for (j++, i++; isalnum(line[i]) || line[i] == '_'; i++, j++) {
+        rv[j] = line[i];
+    }
+
+    rv[j] = '\0';
+
+    if (intree(keytree, rv)) {
+        goto nxt;
+    } else {
+        return rp;
+    }
+}

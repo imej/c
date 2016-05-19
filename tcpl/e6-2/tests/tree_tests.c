@@ -100,6 +100,10 @@ char *test_fromSortedArray()
     mu_assert(strcmp(tree->left->right->word, sa[1]) == 0, "'bbb' is not the first left.");
     mu_assert(strcmp(tree->right->right->word, sa[4]) == 0, "'eee' is not the first left.");
 
+    mu_assert(intree(tree, sa[2]) == 1, "'ccc' is not in the tree.");
+    mu_assert(intree(tree, sa[1]) == 1, "'bbb' is not in the tree.");
+    mu_assert(intree(tree, "zzz") == 0, "'zzz' is in the tree.");
+
     /* treeprint(tree); */
 
     tdestroy(tree);

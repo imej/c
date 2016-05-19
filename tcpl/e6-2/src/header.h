@@ -24,6 +24,8 @@ struct tnode *addtree(struct tnode *p, char *w);
 void treeprint(struct tnode *p);
 void tdestroy(struct tnode *rt);
 struct tnode * fromSortedArray(char **words, int start, int end);
+struct tnode * searchtree(struct tnode *tree, const char *wd);
+int intree(struct tnode *tree, const char *wd);
 
 /* functions in read.c */
 int catchline(char s[], int lim);
@@ -32,6 +34,7 @@ int catchline(char s[], int lim);
 int isPrepro(char line[], int *inpp);
 void rmvCmmts(char line[], int *inCmmts);
 void rmvPrepro(char line[], int *inpp);
+int getvar(const char line[], const int start, struct tnode *keytree, char rv[]);
 
 /* functions in ckeys.c */
 struct tnode *createKeyTree();
