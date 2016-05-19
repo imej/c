@@ -4,12 +4,16 @@
 #include <string.h>
 
 
-int main(void)
+int main(int argc, char *argv[])
 {
+    int num = 6;
     char grp[MAXLINE] = {0};
     struct tnode *tree = read();
 
-    prtgrp(tree, 6, grp);
+    if (argc > 1) {
+        num = atoi(argv[1]);
+    }
+    prtgrp(tree, num, grp);
     tdestroy(tree);
 
     return 0;
