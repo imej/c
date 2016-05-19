@@ -10,6 +10,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#define MAXLINE 3000
+
 /* tnode: tree node */
 struct tnode {
     char *word;
@@ -29,6 +31,7 @@ int intree(struct tnode *tree, const char *wd);
 
 /* functions in read.c */
 int catchline(char s[], int lim);
+struct tnode * read();
 
 /* functions in cprog.c */
 int isPrepro(char line[], int *inpp);

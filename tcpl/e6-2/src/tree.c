@@ -110,10 +110,8 @@ int intree(struct tnode *tree, const char *wd)
 {
     struct tnode *p = searchtree(tree, wd);
     if (p == NULL) {
-        printf("intree returns 0");
         return 0;
     } else {
-        printf("intree returns 1");
         return 1;
     }
 }

@@ -132,7 +132,7 @@ void rmvCmmts(char line[], int *inCmmts)
  *         struct tnode *keytree - a b-tree holds all keywords
  *         char rv[] - the variable found.
  *
- * return: int >= 0 the position in line the variable is found.        
+ * return: int >= 0 the position next to the last character of the variable is found.        
  *             -1 find nothing
  */
 int getvar(const char line[], const int start, struct tnode *keytree, char rv[])
@@ -162,13 +162,13 @@ nxt:
     }
 
     j = 0;
-    rp = i;
     rv[j] = line[i];
     for (j++, i++; isalnum(line[i]) || line[i] == '_'; i++, j++) {
         rv[j] = line[i];
     }
 
     rv[j] = '\0';
+    rp = i;
 
     if (intree(keytree, rv)) {
         goto nxt;

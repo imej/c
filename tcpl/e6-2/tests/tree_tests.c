@@ -120,6 +120,37 @@ char *test_ckeys()
     return NULL;
 }
 
+char *test_getvar()
+{
+    char line[] = "how are you?";
+    char rv[MAXLINE] = {0};
+    struct tnode *tree = createKeyTree();
+    int i = 0;
+     
+    i = getvar(line, i, tree, rv);
+    
+    mu_assert(i == 3, "the first word should be ended at position 3");
+    mu_assert(strcmp(rv,"how") == 0, "the first word is not 'how'");
+
+    i = getvar(line, i, tree, rv);
+    
+    mu_assert(i == 7, "the second word should be ended at position 7");
+    mu_assert(strcmp(rv,"are") == 0, "the second word is not 'are'");
+    
+    i = getvar(line, i, tree, rv);
+    
+    mu_assert(i == 11, "the second word should be ended at position 11");
+    mu_assert(strcmp(rv,"you") == 0, "the third word is not 'you'");
+    
+    i = getvar(line, i, tree, rv);
+    
+    mu_assert(i == -1,"the fourth word does not exist");
+    
+    tdestroy(tree);
+
+    return NULL;
+}
+
 char *all_tests()
 {
     mu_suite_start();
@@ -129,6 +160,7 @@ char *all_tests()
     mu_run_test(test_isPrepro);
     mu_run_test(test_fromSortedArray);
     /* mu_run_test(test_ckeys); */
+    mu_run_test(test_getvar);
 
     return NULL;
 }
