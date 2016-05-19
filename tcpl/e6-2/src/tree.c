@@ -66,3 +66,23 @@ void tdestroy(struct tnode *rt)
 	free(rt);
     }
 }
+
+/* fromSortedArray: create a b-tree from the passed in sorted array.
+ */
+struct tnode * fromSortedArray(char **words, int start, int end)
+{
+    int mid;
+    struct tnode *root;
+
+    if (words == NULL || start > end) {
+        return NULL;
+    }
+
+    mid = start + (end - start) / 2;
+    root = talloc();
+    root->word = mystrdup(*(words + mid));
+    root->left = fromSortedArray(words, start, mid - 1);
+    root->right = fromSortedArray(words, mid +1, end);
+
+    return root;
+}

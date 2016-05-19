@@ -82,8 +82,36 @@ char *test_tree()
     tree = addtree(tree, "whole wheet");
     mu_assert(tree != NULL, "Failed to add \"whole wheet\" to tree.");
 
-    //treeprint(root);
+    /* treeprint(root); */
     tdestroy(root);
+
+    return NULL;
+}
+
+char *test_fromSortedArray()
+{
+    char *sa[] = {"aaa", "bbb", "ccc", "ddd", "eee"};
+
+    struct tnode *tree = fromSortedArray(sa, 0, 4);
+
+    mu_assert(strcmp(tree->word, sa[2]) == 0, "'ccc' is not root.");
+    mu_assert(strcmp(tree->left->word, sa[0]) == 0, "'aaa' is not the first left.");
+    mu_assert(strcmp(tree->right->word, sa[3]) == 0, "'ddd' is not the first left.");
+    mu_assert(strcmp(tree->left->right->word, sa[1]) == 0, "'bbb' is not the first left.");
+    mu_assert(strcmp(tree->right->right->word, sa[4]) == 0, "'eee' is not the first left.");
+
+    /* treeprint(tree); */
+
+    tdestroy(tree);
+
+    return NULL;
+}
+
+char *test_ckeys()
+{
+    struct tnode *tree = createKeyTree();
+    treeprint(tree);
+    tdestroy(tree);
 
     return NULL;
 }
@@ -95,6 +123,8 @@ char *all_tests()
     mu_run_test(test_tree);
     mu_run_test(test_rmvCmmts);
     mu_run_test(test_isPrepro);
+    mu_run_test(test_fromSortedArray);
+    /* mu_run_test(test_ckeys); */
 
     return NULL;
 }

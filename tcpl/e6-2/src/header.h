@@ -23,6 +23,7 @@ char *mystrdup(char *s);
 struct tnode *addtree(struct tnode *p, char *w);
 void treeprint(struct tnode *p);
 void tdestroy(struct tnode *rt);
+struct tnode * fromSortedArray(char **words, int start, int end);
 
 /* functions in read.c */
 int catchline(char s[], int lim);
@@ -30,5 +31,9 @@ int catchline(char s[], int lim);
 /* functions in cprog.c */
 int isPrepro(char line[], int *inpp);
 void rmvCmmts(char line[], int *inCmmts);
+void rmvPrepro(char line[], int *inpp);
+
+/* functions in ckeys.c */
+struct tnode *createKeyTree();
 
 #endif

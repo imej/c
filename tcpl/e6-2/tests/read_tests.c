@@ -10,7 +10,7 @@ int main(void)
     char s[MAXLINE] = {0};
     int inpp = 0;
     int inCmmts = 0;
- 
+/* 
     while (catchline(s, MAXLINE) > 0) {
         printf("------------------------\n");
         printf("%s\n", s);
@@ -20,6 +20,6 @@ int main(void)
         printf("%s\n", s);
        
     }
-
+*/
     return 0;
 }
