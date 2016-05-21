@@ -5,7 +5,15 @@
 
 struct lnode * addlnode(struct lnode *p, int ln) 
 {
-    struct lnode *q = (struct lnode *) malloc(sizeof(struct lnode));
+    struct lnode *q;
+
+    for (q = p; q != NULL; q = q->nxt) {
+        if (q->ln == ln) {
+	    return p;
+	}
+    }
+
+    q = (struct lnode *) malloc(sizeof(struct lnode));
 
     if (q == NULL) {
         return NULL;

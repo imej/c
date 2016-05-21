@@ -1,4 +1,4 @@
-/* Exercise 6-2: This file contains functions to read the input. */
+/* Exercise 6-3: This file contains functions to read the input. */
 #include "header.h"
 
 int catchline(char s[], int lim)
