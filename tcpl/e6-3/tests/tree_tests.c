@@ -9,18 +9,29 @@ char * test_tree()
     p = addtree(p, "are", 2);
     p = addtree(p, "you", 100);
 
-    treeprint(p);
+    /* treeprint(p); */
 
     tdestroy(p);
 
     return NULL;
 }
 
+char * test_createKeyTree()
+{
+
+    struct tnode *p = createKeyTree();
+    treeprint(p);
+
+    tdestroy(p);
+
+    return NULL;
+}
 char *all_tests()
 {
     mu_suite_start();
 
     mu_run_test(test_tree);
+    mu_run_test(test_createKeyTree);
 
     return NULL;
 }

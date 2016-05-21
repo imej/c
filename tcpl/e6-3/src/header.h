@@ -43,4 +43,7 @@ void prtgrp(struct tnode *p, int num, char *grp);
 /* functions in read.c */
 int catchline(char s[], int lim);
 
+/* functions in noise.c*/
+struct tnode *createKeyTree();
+
 #endif
