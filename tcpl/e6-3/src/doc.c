@@ -5,7 +5,7 @@
  *           a word: 1) only contains letters, digit, -, '
  *                   2) cannot start or end with - or ' 
  */
-struct tnode * doc2tree(struct tnode * keytree)
+struct tnode * doc2tree()
 {
     char line[MAXLINE] = {0};
     char word[MAXLINE] = {0};

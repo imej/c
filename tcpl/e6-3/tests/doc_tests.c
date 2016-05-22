@@ -2,6 +2,15 @@
 #include <header.h>
 #include <assert.h>
 
+char *test_doc2tree()
+{
+    struct tnode *tree = doc2tree();
+    treeprint(tree);
+    tdestroy(tree);
+
+    return NULL;
+}
+
 char *test_getword()
 {
     char line[] = "how are you?";
@@ -37,7 +46,8 @@ char *all_tests()
 {
     mu_suite_start();
 
-    mu_run_test(test_getword);
+    /* mu_run_test(test_getword); */
+    mu_run_test(test_doc2tree);
 
     return NULL;
 }

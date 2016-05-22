@@ -47,6 +47,7 @@ int catchline(char s[], int lim);
 struct tnode *createKeyTree();
 
 /* functions in doc.c */
+struct tnode * doc2tree();
 int getword(const char line[], const int start, struct tnode *keytree, char rv[]);
 
 #endif
