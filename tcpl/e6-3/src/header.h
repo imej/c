@@ -46,4 +46,7 @@ int catchline(char s[], int lim);
 /* functions in noise.c*/
 struct tnode *createKeyTree();
 
+/* functions in doc.c */
+int getword(const char line[], const int start, struct tnode *keytree, char rv[]);
+
 #endif
